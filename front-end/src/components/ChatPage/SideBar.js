@@ -3,7 +3,7 @@ import React from "react";
 
 const Sidebar = () => {
   return (
-    <div className="flex flex-col py-8 pl-6 pr-2 w-64 bg-white flex-shrink-0">
+    <div className="SideBar" >
       <div className="flex flex-row items-center justify-center h-12 w-full">
         <div className="flex items-center justify-center rounded-2xl text-indigo-700 bg-indigo-100 h-10 w-10">
           <svg
@@ -39,34 +39,18 @@ const Sidebar = () => {
       <div className="flex flex-col mt-8">
         <div className="flex flex-row items-center justify-between text-xs">
           <span className="font-bold">Active Conversations</span>
-          <span className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">4</span>
         </div>
         <div className="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
           {/* Active conversation buttons */}
           {/* Replace the placeholder content below with your active conversations */}
           {/* Example button */}
-          <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-            <div className="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">H</div>
+          <button className="flex flex-row items-center bg-light hover:bg-light/80 rounded-xl p-2">
+            <div className="flex items-center justify-center h-8 w-8 bg-beige rounded-full">H</div>
             <div className="ml-2 text-sm font-semibold">Henry Boyd</div>
           </button>
           {/* Add more active conversation buttons as needed */}
         </div>
       </div>
-      {/* Archived Conversations */}
-      {/* <div className="flex flex-row items-center justify-between text-xs mt-6">
-        <span className="font-bold">Archived</span>
-        <span className="flex items-center justify-center bg-gray-300 h-4 w-4 rounded-full">7</span>
-      </div> */}
-      {/* <div className="flex flex-col space-y-1 mt-4 -mx-2"> */}
-        {/* Archived conversation buttons */}
-        {/* Replace the placeholder content below with your archived conversations */}
-        {/* Example button */}
-        {/* <button className="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
-          <div className="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full">H</div>
-          <div className="ml-2 text-sm font-semibold">Henry Boyd</div>
-        </button> */}
-        {/* Add more archived conversation buttons as needed */}
-      {/* </div> */}
     </div>
   );
 };

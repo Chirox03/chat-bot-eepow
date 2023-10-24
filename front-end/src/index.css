@@ -12,13 +12,13 @@ code {
     @apply flex h-screen antialiased text-gray-800;
   }
   .SideBar {
-    @apply flex flex-col py-8 pl-6 pr-6 w-64 bg-blue-400  flex-shrink-0;
+    @apply flex flex-col py-8 pl-6 pr-6 w-64 bg-dark  flex-shrink-0;
   }
   .Conversation{
-    @apply flex flex-col flex-auto h-full p-6 bg-blue-300;
+    @apply flex flex-col flex-auto h-full p-6 bg-light;
   }
   .ChatInput{
-    @apply flex items-center h-16 w-full px-4 bg-blue-300;
+    @apply flex items-center h-16 w-full px-4 bg-light;
   }
   .LoginForm{
     @apply min-h-screen flex flex-col items-center justify-center bg-medium;
