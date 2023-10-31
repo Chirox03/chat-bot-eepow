@@ -8,7 +8,8 @@ module.exports = {
         beige:'#F9F5F6',
         light:'#F8E8EE',
         medium:'#FDCEDF',
-        dark:'#F2BED1'
+        dark:'#F2BED1',
+        darker:'#F875AA'
       }
     },
   },

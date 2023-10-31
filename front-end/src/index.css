@@ -12,7 +12,7 @@ code {
     @apply flex h-screen antialiased text-gray-800;
   }
   .SideBar {
-    @apply flex flex-col py-8 pl-6 pr-6 w-64 bg-dark  flex-shrink-0;
+    @apply flex flex-col py-8 pl-6 pr-6 w-64 bg-dark    flex-shrink-0;
   }
   .Conversation{
     @apply flex flex-col flex-auto h-full p-6 bg-light;
