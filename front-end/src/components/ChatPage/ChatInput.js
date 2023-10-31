@@ -32,7 +32,7 @@ const ChatInput = () => {
         </div>
       </div>
       <div className="ml-4">
-        <button className="flex items-center justify-center bg-medium hover:bg-dark rounded-xl text-beige px-4 py-2 flex-shrink-0"> 
+        <button className="flex items-center justify-center bg-medium hover:bg-dark rounded-xl text-white px-4 py-2 flex-shrink-0"> 
           <span>Send</span>
           <span className="ml-2">
             <svg

@@ -1,7 +1,7 @@
 import React from "react";
 import Conversation from "./Conversation";
 import ChatInput from "./ChatInput";
-import Sidebar from "./SideBar.js";
+import Sidebar from "./SideBar/SideBar.js";
 const ChatPage = () => {
   return (
     <div className="ChatPage">

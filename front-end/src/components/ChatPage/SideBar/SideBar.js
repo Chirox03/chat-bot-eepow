@@ -1,10 +1,14 @@
-// Sidebar.js
 import React from "react";
+import Menu from "./Menu";
 
 const Sidebar = () => {
+  const handleLogout = () => {
+    // Perform logout functionality here
+  };
+
   return (
-    <div className="SideBar" >
-      <div className="flex flex-row items-center justify-center h-12 w-full">
+    <div className="SideBar flex flex-col relative pt-6">
+      <div className="flex flex-row items-center justify-center h-12 mar pt-6">
         <div className="flex items-center justify-center rounded-2xl text-indigo-700 bg-indigo-100 h-10 w-10">
           <svg
             className="w-6 h-6"
@@ -23,20 +27,8 @@ const Sidebar = () => {
         </div>
         <div className="ml-2 font-bold text-2xl">Eepow bot</div>
       </div>
-      {/* <div className="flex flex-col items-center bg-indigo-100 border border-gray-200 mt-4 w-full py-6 px-4 rounded-lg">
-        <div className="h-20 w-20 rounded-full border overflow-hidden">
-          <img
-            src="https://avatars3.githubusercontent.com/u/2763884?s=128"
-            alt="Avatar"
-            className="h-full w-full"
-          />
-        </div>
-        <div className="text-sm font-semibold mt-2">Aminos Co.</div>
-        <div className="flex flex-row items-center mt-3">
-        </div>
-      </div> */}
       {/* Active Conversations */}
-      <div className="flex flex-col mt-8">
+      <div className="flex flex-col flex-grow mt-8">
         <div className="flex flex-row items-center justify-between text-xs">
           <span className="font-bold">Active Conversations</span>
         </div>
@@ -50,6 +42,11 @@ const Sidebar = () => {
           </button>
           {/* Add more active conversation buttons as needed */}
         </div>
+      </div>
+      {/* Logout Button */}
+     
+      <div className="flex-grow absolute bottom-0 left-0 w-full">
+      <Menu />
       </div>
     </div>
   );
