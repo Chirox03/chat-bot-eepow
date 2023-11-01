@@ -9,7 +9,7 @@ const Sidebar = () => {
   return (
     <div className="SideBar flex flex-col relative pt-6">
       <div className="flex flex-row items-center justify-center h-12 mar pt-6">
-        <div className="flex items-center justify-center rounded-2xl text-indigo-700 bg-indigo-100 h-10 w-10">
+        <div className="flex items-center justify-center rounded-2xl text-indigo-700 bg-dark h-10 w-10">
           <svg
             className="w-6 h-6"
             fill="none"

@@ -1,18 +1,23 @@
-import './App.css';
-import Menu from './components/ChatPage/SideBar/Menu';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginForm from './components/LoginForm/LoginForm';
-import SignUpForm from './components/SignUpForm/SignUpForm';
 import ChatPage from './components/ChatPage/ChatPage';
-import Setting from './components/Setting/Setting';
+import ChangePass from './components/ChangePass/ChangePass';
+import Home from './components/Home';
+import SignUpForm from './components/SignUpForm/SignUpForm';
+import './index.css';
 function App() {
   return (
-    <div className="App">
-      {/* <LoginForm/>  */}
-      {/* <SignUpForm/> */}
-       <ChatPage/> 
-      {/* <Setting/> */}
-      {/* <Menu/>  */}
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/Chat" element={<ChatPage />} />
+        <Route path="/SignUp" element={<SignUpForm />} />
+        <Route path="/ChangePass" element={<ChangePass />} />
+        <Route path="*" element={<h1>Not Found</h1>} />
+        <Route path="/Login" element={<LoginForm />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

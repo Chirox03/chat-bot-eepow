@@ -32,14 +32,11 @@ const Menu = () => {
       </button>
       {isOpen && (
         <div className="absolute bottom-12 left-0 border shadow-lg z-10 w-full border-green">
-          <a href="#" className="block px-4 py-2 text-sm text-black bg-white hover:bg-beige">
+          <a href="/" className="block px-4 py-2 text-sm text-black bg-white hover:bg-light">
             Log out
           </a>
-          <a href="#" className="block px-4 py-2 text-sm text-black bg-white hover:bg-beige">
+          <a href="ChangePass" className="block px-4 py-2 text-sm text-black bg-white hover:bg-light">
             Đổi mật khẩu
-          </a>
-          <a href="#" className="block px-4 py-2 text-sm text-black bg-white hover:bg-beige">
-            Link 3
           </a>
         </div>
       )}
