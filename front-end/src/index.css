@@ -5,4 +5,29 @@
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+  }
+
+@layer components{
+  .ChatPage {
+    @apply flex h-screen antialiased text-gray-800;
+  }
+  .SideBar {
+    @apply flex flex-col py-8 pl-6 pr-6 w-64 bg-dark    flex-shrink-0;
+  }
+  .Conversation{
+    @apply flex flex-col flex-auto h-full p-6 bg-light;
+  }
+  .ChatInput{
+    @apply flex items-center h-16 w-full px-4 bg-light;
+  }
+  .LoginForm{
+    @apply min-h-screen flex flex-col items-center justify-center bg-medium;
+  }
+  .But{
+    @apply relative mt-6 border rounded-md py-2 text-sm text-beige bg-dark/80 hover:bg-dark;
+  }
+  .Input{
+    @apply text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400;
+  }
+
 }
