@@ -2,126 +2,51 @@ import React, { useState } from "react";
 import Conversation from "./Conversation/Conversation";
 import ChatInput from "./ChatInput";
 import Sidebar from "./SideBar/SideBar.js";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const ChatPage = () => {
-  const [activeConversation, setActiveConversation] = useState(0);
-  const conversations = [
-    {
-      id: 0,
-      name: "What is OOP?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-      ],
-    },
-    {
-      id: 1,
-      name: "Hello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
+  const init_ = [{
+    id : 0,
+    name :"Eepow bot",
+    data : [
+      {
+        sender: "bot",
+        messages: "Hello, how can I help you?"
+      }
+    ]
 
-      ],
-    },
-    {
-      id: 2,
-      name: "Hello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
+  }
+  ]
+  const [conversations, setConversations] = useState(init_);
+  const [activeConversation, setActiveConversation] = useState(conversations[0]);
+  console.log("activeConversation:", activeConversation);
+  const auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/auth.user
+      console.log("New log in ")
+      // ...
+    } else {
+      // User is signed out
+      // ...
+      console.log("New log out ")
+    }
+  });
 
-      ],
-    },
-    {
-      id: 9,
-      name: "Hello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
+  const updateMessage = (message,sender) => {
+    console.log("message:", message);
+    const idx = conversations.findIndex(x => x.id === activeConversation.id);
+    console.log(idx)
+    if (conversations[idx].data != undefined) {
+      console.log("conversation ne:", init_[idx]);
+      init_[idx].data.push({sender:sender,messages:message});
+      setConversations(conversations)
+      setActiveConversation(init_[idx]);
+      console.log("conversation ne:", init_[idx]);
 
-      ],
-    },
-    {
-      id: 4,
-      name: "Hello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-
-      ]
-    },
-    {
-      id: 8,
-      name: "Hello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-
-      ]
-    },
-    {
-      id: 5,
-      name: "Hello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-
-      ]
-    },
-    {
-      id: 6,
-      name: "Hello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-
-      ]
-    },
-    {
-      id: 7,
-      name: "Hello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-
-      ]
-    },
-    {
-      id: 7,
-      name: "pello Eepow?",
-      data: [
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-        { sender: "Eepow", messages: "Hello J" },
-        { sender: "J", messages: "Hello Pikcachu" },
-
-      ]
-    },
-  ];
-
+    }
+  }
   const handleConversationClick = (conversationId) => {
     const selectedConversation = conversations.find((conversation) => conversation.id === conversationId);
     setActiveConversation(selectedConversation);
@@ -137,7 +62,7 @@ const ChatPage = () => {
       />
       <div className="flex flex-col w-full">
         <Conversation activeConversation={activeConversation} />
-        <ChatInput />
+        <ChatInput updateMessage={updateMessage}/>
       </div>
     </div>
   );

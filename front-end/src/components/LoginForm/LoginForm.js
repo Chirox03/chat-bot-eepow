@@ -1,8 +1,29 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
+import {getAuth,signInWithRedirect, GoogleAuthProvider,signInWithPopup } from "firebase/auth";
 const LoginForm = () => {
   const navigate = useNavigate();
+  
+  const googleSignIn = () => {
+    const provider = new GoogleAuthProvider();
+    const auth = getAuth(); 
+    signInWithPopup(auth, provider)
+    .then((result) => {
+      const user = result.user;
+      navigate("/Chat");
+  }).catch((error) => {
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // The email of the user's account used.
+    const email = error.customData.email;
+    // The AuthCredential type that was used.
+    // ...
+    alert("Login fail")
+    console.log(errorCode, errorMessage, email);
+  });
 
+  };
   const handleLogin = () => {
     // Perform login functionality here
     // Redirect to the ChatPage after successful login
@@ -13,7 +34,7 @@ const LoginForm = () => {
     <div className="LoginForm">
       <div className="flex flex-col bg-light  shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-md w-full max-w-md">
         <div className="font-medium self-center text-xl sm:text-2xl uppercase text-gray-800">Login To Eepow</div>
-        <button className="But">
+        <button className="But" onClick={googleSignIn}>
           <span className="absolute left-0 top-0 flex items-center justify-center h-full w-10 text-blue-500">
             <i className="fab fa-facebook-f"></i>
           </span>
