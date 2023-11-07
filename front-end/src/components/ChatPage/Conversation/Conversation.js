@@ -1,8 +1,13 @@
 // Conversation.js
 import React from "react";
 import Message from "./Message";
+import { useState, useEffect } from "react";
 const Conversation = ({activeConversation}) => {
-  console.log("Conversation",activeConversation)
+  console.log("Current Conversation",activeConversation)
+  console.log("Current Conversation", activeConversation);
+  useEffect(() => {
+    console.log("Current Conversation chat", activeConversation);
+  }, [activeConversation]);
   return (
     <div className="Conversation">
         <div className=" relative w-full p-5 m-0 overflow-scroll bg-light space-y-2">

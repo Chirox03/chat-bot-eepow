@@ -2,7 +2,14 @@ import React from "react";
 import Menu from "./Menu";
 import { Button } from "@material-tailwind/react";
 import { useState } from "react";
+import { useEffect } from "react";
 const Sidebar = ({ conversations, activeConversation, onConversationClick }) => {
+  // useEffect hook to monitor changes in activeConversation
+  useEffect(() => {
+    // Perform any necessary actions based on the activeConversation change
+  }, [activeConversation]);
+  // onConversationClick(activeConversation.id);
+
   return (
     <div className="SideBar scrollbar-thin scrollbar-thumb-darker flex flex-col relative pt-6 md:w-64">
       <div className="flex flex-row items-center justify-center h-12 mar pt-6">
@@ -39,11 +46,11 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick }) => 
           key={conversation.id}
           className={
             "flex flex-row items-center rounded-xl p-2 " +
-            (conversation.id === activeConversation.id ? "bg-light" : "bg-dark")
+            (conversation.id == activeConversation.id ? "bg-light" : "bg-dark")
           }
           >
             <div className="flex items-center justify-center h-8 w-8 bg-beige rounded-full">
-              {conversation.name?.charAt(0)}
+              {/* {conversation.name?.charAt(0)} */} 
             </div>
             <div className="ml-2 text-sm font-semibold">{conversation.name}</div>
           </button>
