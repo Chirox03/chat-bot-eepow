@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Conversation from "./Conversation/Conversation";
 import ChatInput from "./ChatInput";
 import Sidebar from "./SideBar/SideBar.js";
-
+import { User } from "../../class/User.js";
 const ChatPage = ({user,updateUser}) => {
   const init_ = [{
     id : 0,
@@ -40,6 +40,8 @@ const ChatPage = ({user,updateUser}) => {
         conversations={conversations}
         activeConversation={activeConversation}
         onConversationClick={handleConversationClick}
+        user={user}
+        updateUser={updateUser}
       />
       <div className="flex flex-col w-full">
         <Conversation activeConversation={activeConversation} />

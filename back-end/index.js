@@ -1,6 +1,8 @@
 const express = require('express')  
 const cors = require('cors')    
 const bodyParser = require('body-parser')
+const { User } = require('./class/User.js');
+
 var admin = require("firebase-admin");
 
 var serviceAccount = require("./oop-chatbot-firebase-adminsdk-w0mjd-cd80e79035.json");
@@ -48,9 +50,19 @@ const checkIfEmailExists = async (email) => {
   const usersRef = db.collection("Users");
   const query = usersRef.where("Email", "==", email);
   const querySnapshot = await query.get();
-
-  return !querySnapshot.empty;
+  if(!querySnapshot.empty){
+    const UserID = querySnapshot.docs[0].data().UserID;
+    const Username = querySnapshot.docs[0].data().Username;
+    const Password = querySnapshot.docs[0].data().Password;
+    const Email = querySnapshot.docs[0].data().Email;
+    const user = new User(UserID,Username,Password,Email);
+    return user;
+  }else {
+    console.log('No such document!');
+    return (null );
+  }
 };
+
 
 app.post("/GoogleLogin", async (req, res) => {
   // Assuming your request body contains the ID token
@@ -58,8 +70,10 @@ app.post("/GoogleLogin", async (req, res) => {
 
   try {
     // Verify the ID token using the Firebase Admin SDK
-    if(checkIfEmailExists){
-      res.send({ accountExists: true });
+    const user = await checkIfEmailExists(email);
+    if(user)
+    {
+      res.send({ accountExists: true, user: user });
     }
   } catch (error) {
     console.error('Error verifying ID token:', error);
