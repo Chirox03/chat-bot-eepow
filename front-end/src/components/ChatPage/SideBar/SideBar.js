@@ -3,7 +3,7 @@ import Menu from "./Menu";
 import { Button } from "@material-tailwind/react";
 import { useState } from "react";
 import { useEffect } from "react";
-const Sidebar = ({ conversations, activeConversation, onConversationClick }) => {
+const Sidebar = ({ conversations, activeConversation, onConversationClick,user,updateUser }) => {
   // useEffect hook to monitor changes in activeConversation
   useEffect(() => {
     // Perform any necessary actions based on the activeConversation change
@@ -61,7 +61,7 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick }) => 
       {/* Logout Button */}
      
       <div className="flex-grow absolute bottom-0 left-0 w-full">
-      <Menu />
+      <Menu user={user} updateUser={updateUser} />
       </div>
     </div>
   );
