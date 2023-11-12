@@ -1,28 +1,57 @@
 import React from 'react';
+import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import {getAuth,signInWithRedirect, GoogleAuthProvider,signInWithPopup } from "firebase/auth";
-const LoginForm = () => {
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { useEffect } from 'react';
+import User from '../../class/User';
+const LoginForm = ({updateUser}) => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcdvPkkVuKpsl80kDnAG_EPrGr2hvLUs8",
+      authDomain: "oop-chatbot.firebaseapp.com",
+      databaseURL: "https://oop-chatbot-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "oop-chatbot",
+      storageBucket: "oop-chatbot.appspot.com",
+      messagingSenderId: "812710836562",
+      appId: "1:812710836562:web:6aa380cde67308c2b2e28b",
+      measurementId: "G-4RCCMX6LLW"
+    };
+    
+    // Initialize Firebase
+  const firebaseApp = initializeApp(firebaseConfig);
   const navigate = useNavigate();
   
   const googleSignIn = () => {
     const provider = new GoogleAuthProvider();
-    const auth = getAuth(); 
+    const auth = getAuth(firebaseApp); 
     signInWithPopup(auth, provider)
     .then((result) => {
       const user = result.user;
-      navigate("/Chat");
-  }).catch((error) => {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // The email of the user's account used.
-    const email = error.customData.email;
-    // The AuthCredential type that was used.
-    // ...
-    alert("Login fail")
-    console.log(errorCode, errorMessage, email);
-  });
-
+      // Send the email to the backend for account check
+      axios.post('http://localhost:3001/GoogleLogin', { email: user.email })
+      .then(response => {
+        const { accountExists } = response.data;
+        if (accountExists) {
+          // Account exists, navigate to the Chat page
+          alert("Login success");
+          updateUser(response.data.user);
+          navigate("/Chat");
+        } else {
+          // Account doesn't exist, handle accordingly
+          alert("Account does not exist");
+        }
+      })
+      .catch((error) => {
+        // Handle errors
+        alert("Login fail")
+        console.error(error);
+      });
+    })
+    .catch((error) => {
+      // Handle errors
+      alert("Login fail")
+      console.error(error);
+    });
   };
   const handleLogin = () => {
     // Perform login functionality here
