@@ -4,11 +4,11 @@ import LoginForm from "../../LoginForm/LoginForm";
 
 // const auth = getAuth();
 
-const Menu = ({user,updateUser}) => {
+const Menu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef();
   const handleSignOut = () =>{
-    updateUser(null);
+   // updateUser(null);
     Navigate(LoginForm);
   }
   const toggleDropdown = () => {
@@ -35,7 +35,6 @@ const Menu = ({user,updateUser}) => {
         onClick={toggleDropdown}
         className={`w-full bg-${!isOpen ? "dark" : "darker"} text-white font-bold py-2 px-4 rounded`}
       >
-        {user.Username}
       </button>
       {isOpen && (
         <div className="absolute bottom-12 left-0 border shadow-lg z-10 w-full border-green">
