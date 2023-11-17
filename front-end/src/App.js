@@ -6,24 +6,38 @@ import ChangePass from './components/ChangePass/ChangePass';
 import Home from './components/Home';
 import SignUpForm from './components/SignUpForm/SignUpForm';
 import './index.css';
-import User from './class/User';
+// Required for side-effects
+import "firebase/firestore";
+import { Firestore, collection, getDocs } from "firebase/firestore"; 
+import { db } from './firebase';
+
+const querySnapshot = await getDocs(collection(db , "Users"));
+querySnapshot.forEach((doc) => {
+  if(doc.exists() && doc.data()){
+    console.log("Document data:", doc.data());  
+  }else{
+    console.log("No such document!");
+  }
+ 
+});
+
 function App() {
-  const [user,updateUser] = useState();
-  // const updateUser = (u)=>{
-  //   setUser(u);
-  // }
+  
   return (
     <div>
+
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home/>} />
-        <Route path="/Chat" element={<ChatPage user={user} updateUser={updateUser} />} />
-        <Route path="/SignUp" element={<SignUpForm/>} />
+        <Route path="/Chat" element={<ChatPage />} />
+        <Route path="/SignUp" element={<SignUpForm />} />
         <Route path="/ChangePass" element={<ChangePass />} />
         <Route path="*" element={<h1>Not Found</h1>} />
-        <Route path="/Login" element={<LoginForm updateUser={updateUser}/>} />
+        <Route path="/Login" element={<LoginForm/>} />
       </Routes>
     </BrowserRouter>
+    <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore-compat.js"></script>
     </div>
   );
 }
