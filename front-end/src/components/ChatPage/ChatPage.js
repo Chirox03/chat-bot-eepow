@@ -6,7 +6,6 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import useAuth from "../../AuthContext";
 const ChatPage = () => {
   const { currentUser, login, logout } = useAuth();
-  console.log("currentUser:", currentUser);
   const init_ = [{
     id : 0,
     name :"Eepow bot",
