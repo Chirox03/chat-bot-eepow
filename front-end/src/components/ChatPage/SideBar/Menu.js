@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Navigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
+import useAuth from "../../../AuthContext";
 // const auth = getAuth();
-const handleSignOut = () =>{
-
-//   signOut(auth).then(() => {
-//     // Sign-out successful.
-//     Navigate("/Home");
-//   }).catch((error) => {
-//     // An error happened.
-//   });
-}
 const Menu = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef();
-
+  const { currentUser, login, logout } = useAuth();
+  const handleSignOut = async(e) => {
+    e.preventDefault();
+    await logout();
+    setIsOpen(false);
+    navigate('/Login');
+  }
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -39,7 +37,7 @@ const Menu = () => {
         onClick={toggleDropdown}
         className={`w-full bg-${!isOpen ? "dark" : "darker"} text-white font-bold py-2 px-4 rounded`}
       >
-        Username
+        {"sdf"}
       </button>
       {isOpen && (
         <div className="absolute bottom-12 left-0 border shadow-lg z-10 w-full border-green">
