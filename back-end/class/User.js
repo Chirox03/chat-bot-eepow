@@ -6,9 +6,9 @@ class User {
         this.Password = Password;
     }
     toString() {
-        return this.Username + ', ' + this.Email + ', ' + this.Conversations;
+        return this.Username + ', ' + this.Email + ', ' + this.UserID;
     }
 }
 
 // Firestore data converter
-module.export = {User};
+module.exports = {User}
