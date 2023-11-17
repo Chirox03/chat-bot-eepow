@@ -1,9 +1,8 @@
 class User {
-    constructor (UserID,Username, Email, Password) {
-        this.UserID = UserID;
+    constructor (Username, Email, Password, Conversations) {
         this.Username = Username;
         this.Email = Email;
-        this.Password = Password;
+        this.Conversations = Conversations;
     }
     toString() {
         return this.Username + ', ' + this.Email + ', ' + this.Conversations;
@@ -11,4 +10,17 @@ class User {
 }
 
 // Firestore data converter
-module.export = {User};
+const userConverter = {
+    toFirestore: (user) => {
+        return {
+            Username: user.Username,
+            Users: user.Email,
+            Password: user.Password,
+            Conversation: user.Conversations
+            };
+    },
+    fromFirestore: (snapshot, options) => {
+        const data = snapshot.data(options);
+        return new User(data.Username, data.Email, data.Password, data.Conversations);
+    }
+};
