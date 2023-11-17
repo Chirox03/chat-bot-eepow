@@ -6,24 +6,40 @@ import ChangePass from './components/ChangePass/ChangePass';
 import Home from './components/Home';
 import SignUpForm from './components/SignUpForm/SignUpForm';
 import './index.css';
-import User from './class/User';
+import { useEffect } from 'react';
+import { useAuth } from './AuthContext';
+
 function App() {
-  const [user,updateUser] = useState();
-  // const updateUser = (u)=>{
-  //   setUser(u);
-  // }
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in
+        console.log('User is signed in:', user);
+      } else {
+        // User is signed out
+        console.log('User is signed out');
+      }
+    });
+
+    return () => {
+      // Unsubscribe from the listener when the component unmounts
+      unsubscribe();
+    };
+  }, []);
   return (
     <div>
+      {/* <AuthProvsider> */}
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home/>} />
-        <Route path="/Chat" element={<ChatPage user={user} updateUser={updateUser} />} />
+        <Route path="/Chat" element={<ChatPage />} />
         <Route path="/SignUp" element={<SignUpForm/>} />
         <Route path="/ChangePass" element={<ChangePass />} />
         <Route path="*" element={<h1>Not Found</h1>} />
-        <Route path="/Login" element={<LoginForm updateUser={updateUser}/>} />
+        <Route path="/Login" element={<LoginForm/>} />
       </Routes>
     </BrowserRouter>
+      {/* </AuthProvsider> */}
     </div>
   );
 }
