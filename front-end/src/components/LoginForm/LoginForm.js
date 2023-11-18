@@ -1,40 +1,37 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
-import {getAuth,signInWithRedirect, GoogleAuthProvider,signInWithPopup } from "firebase/auth";
+import useAuth from "../../AuthContext";
+import { useState } from 'react';
 const LoginForm = () => {
   const navigate = useNavigate();
-  
-  const googleSignIn = () => {
-    const provider = new GoogleAuthProvider();
-    const auth = getAuth(); 
-    signInWithPopup(auth, provider)
-    .then((result) => {
-      const user = result.user;
-      navigate("/Chat");
-  }).catch((error) => {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // The email of the user's account used.
-    const email = error.customData.email;
-    // The AuthCredential type that was used.
-    // ...
-    alert("Login fail")
-    console.log(errorCode, errorMessage, email);
-  });
-
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const { currentUser, googleSignIn, login, logout } = useAuth();
+  const handleLogin = async (e) => {
+    try {
+      e.preventDefault();
+      console.log('Login....');
+      await login(username, password);
+      navigate('/Chat');
+    } catch (error) {
+      console.error('Login failed:', error.message);
+      // You can add additional handling, such as displaying an error message to the user.
+    }
   };
-  const handleLogin = () => {
-    // Perform login functionality here
-    // Redirect to the ChatPage after successful login
-    navigate("/Chat");
-  };
-
+  const handleLoginGoogle = async (e) => {
+    try{
+      e.preventDefault();
+      await googleSignIn();
+      navigate('/Chat');
+    }catch(error){
+      alert(error.message)
+    }
+  }
   return (
     <div className="LoginForm">
       <div className="flex flex-col bg-light  shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-md w-full max-w-md">
         <div className="font-medium self-center text-xl sm:text-2xl uppercase text-gray-800">Login To Eepow</div>
-        <button className="But" onClick={googleSignIn}>
+        <button className="But" onClick={handleLoginGoogle}>
           <span className="absolute left-0 top-0 flex items-center justify-center h-full w-10 text-blue-500">
             <i className="fab fa-facebook-f"></i>
           </span>
@@ -51,11 +48,12 @@ const LoginForm = () => {
               <label htmlFor="username" className="mb-1 text-xs sm:text-sm tracking-wide text-gray-600 text-left">Username:</label>
               <div className="relative">
                 <div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-                  <svg className="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+
                     <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
                 </div>
-                <input id="username" name="username" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="Username" />
+                <input value={username} onChange={(e)=>setUsername(e.target.value)} id="username" name="username" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="Username" />
               </div>
             </div>
             <div className="flex flex-col mb-6">
@@ -63,12 +61,12 @@ const LoginForm = () => {
               <div className="relative">
                 <div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
                   <span>
-                    <svg className="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                       <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                   </span>
                 </div>
-                <input id="password" type="password" name="password" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="Password" />
+                <input value={password} onChange={(e)=> setPassword(e.target.value)} id="password" type="password" name="password" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="Password" />
               </div>
             </div>
             <div className="flex items-center mb-6 -mt-4">
@@ -82,7 +80,7 @@ const LoginForm = () => {
               <button type="submit" onClick={handleLogin} className="flex items-center justify-center focus:outline-none text-white text-sm sm:text-base bg-dark/90 hover:bg-dark rounded py-2 w-full transition duration-150 ease-in">
                 <span className="mr-2 uppercase">Login</span>
                 <span>
-                  <svg className="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                     <path d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </span>
@@ -93,9 +91,9 @@ const LoginForm = () => {
         <div className="flex justify-center items-center mt-6">
           <button className="inline-flex items-center font-bold text-dark/80 hover:text-dark text-xs text-center" type="button">
             <span>
-              <svg className="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-6 w-6" fill="none" strokeLinecap  inecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                 <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+              </svg>  
             </span>
             <span className="ml-2">You don't have an account?</span>
           </button>
