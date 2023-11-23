@@ -3,8 +3,9 @@ import Conversation from "./Conversation/Conversation";
 import ChatInput from "./ChatInput";
 import Sidebar from "./SideBar/SideBar.js";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-
+import useAuth from "../../AuthContext";
 const ChatPage = () => {
+  const { currentUser, login, logout } = useAuth();
   const init_ = [{
     id : 0,
     name :"Eepow bot",
