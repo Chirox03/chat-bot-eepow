@@ -15,15 +15,14 @@ const db = admin.firestore();
 
 const app = express()
 app.use(express.json()); // This is enough for JSON parsing
-app.use(cors());
 // app.use(express.json())
 // app.use(bodyParser.json())
-// const corsOptions = {   
-//   origin: '*',
-//   credentials: true,
-//   optionSuccessStatus: 200
-// }
-// app.use(cors(corsOptions))  
+const corsOptions = {   
+  origin: '*',
+  credentials: true,
+  optionSuccessStatus: 200
+}
+app.use(cors(corsOptions))  
 const port = 3001
 const usersRef = db.collection("Users");
 usersRef.onSnapshot((snapshot) => {
@@ -42,19 +41,18 @@ usersRef.onSnapshot((snapshot) => {
 
 app.get('/verify-email', async (req, res) => {
     try {
-      const { email } = req.body;
-      if (!email) {
-        return res.status(400).json({ error: 'Email is required in the request body.' });
-      }
+      const { email } = req.query; // Use req.query to get query parameters
+  
+      console.log(email);
   
       const usersRef = db.collection('Users');
       const snapshot = await usersRef.where('Email', '==', email).get();
   
       if (snapshot.empty) {
-        return res.status(404).json({ message: 'Email not found in the database.' ,userID: null});
+        return res.status(404).json({ message: 'Email not found in the database.', userID: null });
       }
   
-      return res.status(200).json({ message: 'Email found in the database.' ,userID: snapshot.docs[0].id});
+      return res.status(200).json({ message: 'Email found in the database.', userID: snapshot.docs[0].id });
     } catch (error) {
       console.error('Error verifying email:', error);
       return res.status(500).json({ error: 'Internal server error.' });
@@ -83,8 +81,8 @@ app.get('/verify-email', async (req, res) => {
   });
   app.get('/get-conversations/:userID', async (req, res) => {
     try {
+      console.log("hello")
       const { userID } = req.params;
-  
       if (!userID) {
         return res.status(400).json({ error: 'UserID is required in the request parameters.' });
       }
@@ -94,12 +92,13 @@ app.get('/verify-email', async (req, res) => {
   
       const conversations = [];
       snapshot.forEach((doc) => {
-        conversations.push(doc.data());
+        conversations.push({'conversationID': doc.id,"Tittle":doc.data().Tittle});
       });
   
       return res.status(200).json({ conversations });
     } catch (error) {
       console.error('Error fetching conversations:', error);
+      console.log(error.response)
       return res.status(500).json({ error: 'Internal server error.' });
     }
   });
