@@ -1,53 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Conversation from "./Conversation/Conversation";
 import ChatInput from "./ChatInput";
 import Sidebar from "./SideBar/SideBar.js";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import useAuth from "../../AuthContext";
+
 const ChatPage = () => {
   const { currentUser, login, logout } = useAuth();
-  const init_ = [{
-    id : 0,
-    name :"Eepow bot",
-    data : [
-      {
-        sender: "bot",
-        messages: "Hello, how can I help you?"
-      }
-    ]
+  const [conversations, setConversations] = useState([]); // Initialize as an empty array
+  const [activeConversation, setActiveConversation] = useState(null); // Initialize as null or a default value
 
-  }
-  ]
-  const [conversations, setConversations] = useState(init_);
-  const [activeConversation, setActiveConversation] = useState(conversations[0]);
+  useEffect(() => {
+    // Fetch conversations when the component mounts or when the user changes
+    console.log(currentUser);
+    fetchConversations();
+  }, [currentUser]);
+
+  const fetchConversations = async () => {
+    try {
+      // Make an API request to get conversations for the current user
+      if (currentUser && currentUser.userID) {
+      const response = await fetch(`http://localhost:3001/get-conversations/udWlMJuTAdkq4l2SWcAK`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const data = await response.json();
+      console.log(data)
+      // Update state with the fetched conversations
+      setConversations(data.conversations);
+
+      // Set the active conversation to the first conversation (you can adjust this logic)
+      if (data.conversations && data.conversations.length > 0) {
+        setActiveConversation(data.conversations[0]);
+      }}
+    } catch (error) {
+      console.log("Error fetching conversations:", error);
+    }
+  };
+
   console.log("activeConversation:", activeConversation);
-  const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // User is signed in, see docs for a list of available properties
-      // https://firebase.google.com/docs/reference/js/auth.user
-      console.log("New log in ")
-      // ...
-    } else {
-      // User is signed out
-      // ...
-      console.log("New log out ")
-    }
-  });
 
-  const updateMessage = (message,sender) => {
+  const updateMessage = (message, sender) => {
     console.log("message:", message);
-    const idx = conversations.findIndex(x => x.id === activeConversation.id);
-    console.log(idx)
-    if (conversations[idx].data != undefined) {
-      console.log("conversation ne:", init_[idx]);
-      init_[idx].data.push({sender:sender,messages:message});
-      setConversations(conversations)
-      setActiveConversation(init_[idx]);
-      console.log("conversation ne:", init_[idx]);
+    // Implement your message update logic
+  };
 
-    }
-  }
   const handleConversationClick = (conversationId) => {
     const selectedConversation = conversations.find((conversation) => conversation.id === conversationId);
     setActiveConversation(selectedConversation);
@@ -63,7 +62,7 @@ const ChatPage = () => {
       />
       <div className="flex flex-col w-full">
         <Conversation activeConversation={activeConversation} />
-        <ChatInput updateMessage={updateMessage}/>
+        <ChatInput updateMessage={updateMessage} />
       </div>
     </div>
   );
