@@ -1,18 +1,22 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../AuthContext";
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 const LoginForm = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { currentUser, googleSignIn, login, logout } = useAuth();
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/Chat');
+    }
+  }, [currentUser]);
   const handleLogin = async (e) => {
     try {
       e.preventDefault();
       console.log('Login....');
       await login(username, password);
-      navigate('/Chat');
     } catch (error) {
       console.error('Login failed:', error.message);
       // You can add additional handling, such as displaying an error message to the user.
@@ -22,7 +26,6 @@ const LoginForm = () => {
     try{
       e.preventDefault();
       await googleSignIn();
-      navigate('/Chat');
     }catch(error){
       alert(error.message)
     }

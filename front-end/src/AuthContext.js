@@ -5,19 +5,47 @@ import {auth} from './firebase';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(()=>{
+     // Try to get user information from localStorage on initial load
+     const storedUser = localStorage.getItem('currentUser');
+     return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [logoutTimer, setLogoutTimer] = useState(null);
+  useEffect(() => {
+    console.log('Current User:', currentUser);
+    if (currentUser) {
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    }
+  }, [currentUser]);
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const authInstance = getAuth();
     try {
       const result = await signInWithPopup(authInstance, provider);
-      setCurrentUser({'userID':'3123124',
-      'displayName':result.user.displayName});
-      console.log(currentUser);
-      const timer = setTimeout(logout, 30 * 60 * 1000);
-      setLogoutTimer(timer);
-    } catch (error) {
+      const emailQueryParam = encodeURIComponent(result.user.email);
+      const response = await fetch(`http://localhost:3001/verify-email?email=${emailQueryParam}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Update currentUser based on the API response
+        console.log(data)
+        setCurrentUser({
+          userID: data.userID,
+          displayName: result.user.displayName,
+        });
+        // Set a timer for logout
+        const timer = setTimeout(logout, 30 * 60 * 1000);
+        setLogoutTimer(timer);
+      } else {
+        console.error('Email verification failed:', response.statusText);
+        alert('Login failed');
+      }
+    }  catch (error) {
       console.error('Google login failed:', error.message);
       alert('Login failed');
     }
@@ -40,6 +68,9 @@ export function AuthProvider({ children }) {
       clearTimeout(logoutTimer);
       setLogoutTimer(null);
       setCurrentUser(null);
+      
+      // Remove user information from localStorage on logout
+      localStorage.removeItem('currentUser');
     } catch (error) {
       console.error('Logout failed:', error.message);
       
