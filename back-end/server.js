@@ -92,9 +92,9 @@ app.get('/verify-email', async (req, res) => {
   
       const conversations = [];
       snapshot.forEach((doc) => {
-        conversations.push({'conversationID': doc.id,"Tittle":doc.data().Tittle});
+        conversations.push({'id':doc.id, 'Tittle':doc.data().Tittle});
+
       });
-  
       return res.status(200).json({ conversations });
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -103,7 +103,62 @@ app.get('/verify-email', async (req, res) => {
     }
   });
   
-  
-  const server = app.listen(port, ()=> {
-    console.log(port)
-})
+  // Update Conversation
+app.post('/update-conversation/:userID', async (req, res) => {
+  try {
+    const { userID } = req.params;
+    const { conversationData } = req.body;
+
+    if (!userID || !conversationData) {
+      return res.status(400).json({ error: 'Invalid request parameters or body.' });
+    }
+
+    // Assuming your conversations are stored in a "Conversations" collection
+    const conversationsRef = db.collection('Conversations');
+
+    // Add the userID to the conversation data
+    conversationData.UserID = userID;
+
+    // Add the conversation to Firestore
+    const newConversationRef = await conversationsRef.add(conversationData);
+
+    return res.status(200).json({ message: 'Conversation updated successfully.', conversationID: newConversationRef.id });
+  } catch (error) {
+    console.error('Error updating conversation:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// Update Messages
+app.post('/update-messages/:conversationID', async (req, res) => {
+  try {
+    const { conversationID } = req.params;
+    const { messages } = req.body;
+
+    if (!conversationID || !messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Invalid request parameters or body.' });
+    }
+
+    // Assuming your messages are stored in a "Messages" subcollection within each conversation document
+    const messagesRef = db.collection('Conversations').doc(conversationID).collection('Messages');
+
+    // Add messages to the conversation
+    for (const message of messages) {
+      // Assuming the message object has "Data", "From", and "Time" properties
+      await messagesRef.add({
+        Data: message.Data,
+        From: message.From,
+        Time: message.Time || new Date().toISOString(), // Use current time if not provided
+      });
+    }
+
+    return res.status(200).json({ message: 'Messages updated successfully.' });
+  } catch (error) {
+    console.error('Error updating messages:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+const server = app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
