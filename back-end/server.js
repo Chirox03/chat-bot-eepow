@@ -94,9 +94,8 @@ app.get('/verify-email', async (req, res) => {
   
       const conversations = [];
       snapshot.forEach((doc) => {
-        conversations.push(doc.data());
+        conversations.push({'id':doc.id, 'Tittle':doc.data().Tittle});
       });
-  
       return res.status(200).json({ conversations });
     } catch (error) {
       console.error('Error fetching conversations:', error);
