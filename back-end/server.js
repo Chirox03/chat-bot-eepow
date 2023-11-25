@@ -140,7 +140,8 @@ app.post('/update-messages/:conversationID', async (req, res) => {
     }
 
     // Assuming your messages are stored in a "Messages" subcollection within each conversation document
-    const messagesRef = db.collection('Conversations').doc(conversationID).collection('Messages');
+    const messagesRef = db.collection('Conversations');
+    doc(conversationID).collection('Messages');
 
     // Add messages to the conversation
     for (const message of messages) {
@@ -165,16 +166,17 @@ app.get('/get-messages/:conversationID', async (req, res) => {
     if (!conversationID) {
       return res.status(400).json({ error: 'ConversationID is required in the request parameters.' });
     }
-
+    console.log("conid",conversationID)
     // Assuming your messages are stored in a "Messages" subcollection within each conversation document
-    const messagesRef = db.collection('Conversations').doc(conversationID).collection('Messages');
+    const messagesRef = db.collection('Messages');
 
     // Fetch messages for the specified conversationID
-    const snapshot = await messagesRef.orderBy('Time', 'asc').get();
-
-    const messages = [];
+    const snapshot = await messagesRef.where('ConversationID', '==', conversationID).get();
+  
+    const Messages = [];
+    
     snapshot.forEach((doc) => {
-      messages.push({
+      Messages.push({
         id: doc.id,
         Data: doc.data().Data,
         From: doc.data().From,
@@ -182,7 +184,7 @@ app.get('/get-messages/:conversationID', async (req, res) => {
       });
     });
 
-    return res.status(200).json({ messages });
+    return res.status(200).json({ Messages });
   } catch (error) {
     console.error('Error fetching messages:', error);
     return res.status(500).json({ error: 'Internal server error.' });
