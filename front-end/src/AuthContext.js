@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
       'displayName':'sdsd'});
       alert("loged in ")
       console.log(currentUser.displayName);
-      const timer = setTimeout(logout, 30 * 60 * 1000);
+      const timer = setTimeout(logout, 30 * 60 * 100);
       setLogoutTimer(timer);
     }catch(error){
       console.error('Username login failed:', error.message);
