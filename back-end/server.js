@@ -158,6 +158,36 @@ app.post('/update-messages/:conversationID', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error.' });
   }
 });
+app.get('/get-messages/:conversationID', async (req, res) => {
+  try {
+    const { conversationID } = req.params;
+
+    if (!conversationID) {
+      return res.status(400).json({ error: 'ConversationID is required in the request parameters.' });
+    }
+
+    // Assuming your messages are stored in a "Messages" subcollection within each conversation document
+    const messagesRef = db.collection('Conversations').doc(conversationID).collection('Messages');
+
+    // Fetch messages for the specified conversationID
+    const snapshot = await messagesRef.orderBy('Time', 'asc').get();
+
+    const messages = [];
+    snapshot.forEach((doc) => {
+      messages.push({
+        id: doc.id,
+        Data: doc.data().Data,
+        From: doc.data().From,
+        Time: doc.data().Time,
+      });
+    });
+
+    return res.status(200).json({ messages });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
 
 const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
