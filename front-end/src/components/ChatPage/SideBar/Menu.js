@@ -9,9 +9,9 @@ const Menu = () => {
   const { currentUser, login, logout } = useAuth();
   const handleSignOut = async(e) => {
     e.preventDefault();
+    navigate('/');
     await logout();
     setIsOpen(false);
-    navigate('/Login');
   }
   const toggleDropdown = () => {
     setIsOpen(!isOpen);

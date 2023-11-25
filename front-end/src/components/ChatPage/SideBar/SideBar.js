@@ -50,9 +50,9 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick }) => 
           }
           >
             <div className="flex items-center justify-center h-8 w-8 bg-beige rounded-full">
-              {/* {conversation.name?.charAt(0)} */} 
+              {conversation.Tittle?.charAt(0)} 
             </div>
-            <div className="ml-2 text-sm font-semibold">{conversation.name}</div>
+            <div className="ml-2 text-sm font-semibold">{conversation.Tittle}</div>
           </button>
         ))}
         </div>
