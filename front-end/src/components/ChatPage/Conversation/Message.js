@@ -2,16 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 function Message({ message }) {
-  // Check if message is undefined or null
-  if (!message) {
-    return null; // or return a placeholder, depending on your use case
-  }
-
-  // Check if required properties are present in the message object
-  if (!message.From || !message.Data) {
-    return null; // or handle the missing properties appropriately
-  }
-
+  //console.log("Message", message);
   return (
     <div
       className={classNames(
@@ -19,9 +10,10 @@ function Message({ message }) {
         'flex flex-row items-center my-2'
       )}
     >
+      {message.From === 'Eepow' ?
       <div className="flex items-center justify-center h-10 w-10 rounded-full bg-dark flex-shrink-0">
-        {message.From.charAt(0)}
-      </div>
+         {message.From.charAt(0)}
+      </div> : null}
       <div className="relative ml-3 text-sm bg-beige py-2 px-4 shadow rounded-xl">
         <div>{message.Data}</div>
       </div>
