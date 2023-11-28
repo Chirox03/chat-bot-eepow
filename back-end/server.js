@@ -131,23 +131,23 @@ app.post('/update-conversation/:userID', async (req, res) => {
 
 // Update Messages
 app.post('/update-messages/:conversationID', async (req, res) => {
+  console.log("new message",req.body)
   try {
     const { conversationID } = req.params;
     const { message } = req.body;
-
+    console.log("ss",message)
     if (!conversationID || !message) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
     }
-
     // Assuming your messages are stored in a "Messages" subcollection within each conversation document
-    const conversationRef = db.collection('Conversations').doc(conversationID);
-    const messageRef = conversationRef.collection('Messages');
+    const messageRef = db.collection('Messages')
 
     // Add messages to the conversation
 
     await messageRef.add({
       Data: message.Data,
       From: message.From,
+      ConversationID: conversationID,
       Time: message.Time || new Date().toISOString(), // Use current time if not provided
     });
 
