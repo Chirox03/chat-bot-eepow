@@ -133,25 +133,23 @@ app.post('/update-conversation/:userID', async (req, res) => {
 app.post('/update-messages/:conversationID', async (req, res) => {
   try {
     const { conversationID } = req.params;
-    const { messages } = req.body;
+    const { message } = req.body;
 
-    if (!conversationID || !messages || !Array.isArray(messages)) {
+    if (!conversationID || !message) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
     }
 
     // Assuming your messages are stored in a "Messages" subcollection within each conversation document
-    const messagesRef = db.collection('Conversations');
-    doc(conversationID).collection('Messages');
+    const conversationRef = db.collection('Conversations').doc(conversationID);
+    const messageRef = conversationRef.collection('Messages');
 
     // Add messages to the conversation
-    for (const message of messages) {
-      // Assuming the message object has "Data", "From", and "Time" properties
-      await messagesRef.add({
-        Data: message.Data,
-        From: message.From,
-        Time: message.Time || new Date().toISOString(), // Use current time if not provided
-      });
-    }
+
+    await messageRef.add({
+      Data: message.Data,
+      From: message.From,
+      Time: message.Time || new Date().toISOString(), // Use current time if not provided
+    });
 
     return res.status(200).json({ message: 'Messages updated successfully.' });
   } catch (error) {
@@ -159,6 +157,7 @@ app.post('/update-messages/:conversationID', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error.' });
   }
 });
+
 app.get('/get-messages/:conversationID', async (req, res) => {
   try {
     const { conversationID } = req.params;
