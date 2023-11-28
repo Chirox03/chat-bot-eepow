@@ -3,18 +3,45 @@ import Conversation from "./Conversation/Conversation";
 import ChatInput from "./ChatInput";
 import Sidebar from "./SideBar/SideBar.js";
 import useAuth from "../../AuthContext";
-
+import axios from "axios";
 const ChatPage = () => {
   const { currentUser, login, logout } = useAuth();
   const [conversations, setConversations] = useState([]); // Initialize as an empty array
   const [activeConversation, setActiveConversation] = useState(null); // Initialize as null or a default value
-
+  const [newMessage, setNewMessage] = useState();
   useEffect(() => {
     // Fetch conversations when the component mounts or when the user changes
     console.log(currentUser);
     fetchConversations();
   }, [currentUser]);
+  useEffect(() => {
+    fetchConversations();
+  },[newMessage])
+  const updateMessage = async (message, sender) => {
+    console.log("message:", message);
+    console.log("sender:", sender);
+    setNewMessage({
+      From: sender,
+      Data: message,
+    });
+    try {
+      // Make a PUT request to update the message
+      const response = await axios.post(`http://localhost:3001/update-message/${activeConversation.id}`, newMessage);
+  
+      // Check if the request was successful
+      if (response.status === 200) {
+        console.log('Message updated successfully:', response.data);
+        // Handle success as needed
+      } else {
+        console.error('Error updating message:', response.status, response.data);
+        // Handle the error as needed
+      }
+    } catch (error) {
+      console.error('Error updating message:', error.message);
+      // Handle the error as needed
+    }
 
+  }
   const fetchConversations = async () => {
     try {
       // Make an API request to get conversations for the current user
@@ -41,11 +68,6 @@ const ChatPage = () => {
   };
 
   console.log("activeConversation:", activeConversation);
-
-  const updateMessage = (message, sender) => {
-    console.log("message:", message);
-    // Implement your message update logic
-  };
 
   const handleConversationClick = (conversationId) => {
     const selectedConversation = conversations.find((conversation) => conversation.id === conversationId);
