@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
  // Make sure to adjust the path based on your project structure
-import { updateProfile,GoogleAuthProvider ,signInWithEmailAndPassword,signInWithPopup,getAuth} from "firebase/auth";
+import { updateProfile,GoogleAuthProvider ,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,getAuth} from "firebase/auth";
 import {auth} from './firebase';
+import axios from "axios";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -17,6 +18,42 @@ export function AuthProvider({ children }) {
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
     }
   }, [currentUser]);
+  const validEmailPassword = (email,password) =>{
+    let err = {}
+    if(email.includes('@') != true){
+      err.email = 'Invalid email';
+    }
+    if(password <7){
+      err.password = 'Password is too short'
+    }
+    return err;
+  }
+  const signup = async(email,password) =>{
+    const authInstance = getAuth();
+    let err = validEmailPassword(email,password);
+    if(Object.keys(err).length!=0){
+      return err;
+    }
+    try{
+      const result = await createUserWithEmailAndPassword(authInstance, email, password);
+      console.log('res',result);
+    // If the signup is successful, you can access the user information from the result
+      const response = await axios.post('http://localhost:3001/add-user', {
+        UserID: result.user.id,
+        // Include any additional user data you want to send to the server
+        // For example: email, username, etc.
+      });
+      return null;
+    // Additional steps, such as setting the user's display name or sending a verification email, can be added here.
+    } catch (error) {
+    // Handle errors that might occur during signup
+    if(error.code === 'auth/email-already-in-use'){
+      error.account = 'Email is already axist';
+      return error;
+    }
+    return error;
+    }
+  }
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const authInstance = getAuth();
@@ -36,10 +73,10 @@ export function AuthProvider({ children }) {
         console.log(data)
         setCurrentUser({
           userID: data.userID,
-          displayName: result.user.displayName,
+          displayName: data.user.displayName ,
         });
         // Set a timer for logout
-        const timer = setTimeout(logout, 30 * 60 * 1000);
+        const timer = setTimeout(logout, 30 * 60 * 100000);
         setLogoutTimer(timer);
       } else {
         console.error('Email verification failed:', response.statusText);
@@ -50,19 +87,33 @@ export function AuthProvider({ children }) {
       alert('Login failed');
     }
   };
-  const login = async (username,password)=>{
-    try{
-      setCurrentUser({'userID':'3123124',
-      'displayName':'sdsd'});
-      alert("loged in ")
-      console.log(currentUser.displayName);
-      const timer = setTimeout(logout, 30 * 60 * 100);
-      setLogoutTimer(timer);
-    }catch(error){
-      console.error('Username login failed:', error.message);
-      alert('Login failed');
+  const login = async (email, password) => {
+    const authInstance = getAuth();
+    let err = validEmailPassword(email,password);
+    if(Object.keys(err).length){
+      return err;
     }
-  }
+    try {
+      alert(email)
+     
+      const result = await signInWithEmailAndPassword(authInstance, email, password);
+      
+      setCurrentUser({
+        userID: result.user.uid,
+        displayName: email,
+      });
+  
+      // Set a timer for logout
+      const timer = setTimeout(logout, 30 * 60 * 1);
+      setLogoutTimer(timer);
+      return "Sucess";
+      alert("Logged in successfully!");
+    } catch (error) {
+      console.error('Email login failed:', error.message);
+      return error.message;
+    }
+  };
+  
   const logout = async () => {
     try {
       clearTimeout(logoutTimer);
@@ -81,7 +132,8 @@ export function AuthProvider({ children }) {
     currentUser,
     googleSignIn,
     logout,
-    login
+    login,
+    signup
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

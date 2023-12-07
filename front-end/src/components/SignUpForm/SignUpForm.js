@@ -1,6 +1,37 @@
-import React from 'react';
-
+import React, { useState } from 'react';
+import useAuth from "../../AuthContext";
 const SignUpForm = () => {
+  const { currentUser, googleSignIn, signup, logout } = useAuth();
+  const [errors, setErrors] = useState({});
+  const [email,setEmail] = useState('');
+  const [password,setPassword] = useState('');
+  const [repassword,setRepassword] = useState('');
+  const handleSignUp = async (e)=>{
+    console.log(email,password,repassword)
+    e.preventDefault();
+    let err = {}
+    
+    if(password != repassword){
+      e.preventDefault();
+      err.repassword = 'Password does not match';
+      console.log(err);
+      setErrors(err);
+      setPassword('')
+      setRepassword('')
+      return;
+    }
+    err = await signup(email,password);
+    if(Object.keys(err).length != 0)
+    {
+      e.preventDefault();
+      console.log(err)
+      setErrors(err);
+      setPassword('')
+      setRepassword('')
+      return;
+    }
+    alert('Sign up successfull');
+  }
   return (
     <div className="LoginForm">
       <div className="flex flex-col bg-light shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-md w-full max-w-md">
@@ -26,8 +57,15 @@ const SignUpForm = () => {
                     <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
                 </div>
-                <input id="username" name="username" className="Input" placeholder="Username" />
-              </div>
+                {Object.keys(errors).length && errors.email ? (
+                  <input value={email} onChange={(e) => setEmail(e.target.value)} id="username" name="username" className="Input border border-red-400" placeholder="Username" />
+                  ):(
+                    <input value={email} onChange={(e) => setEmail(e.target.value)} id="username" name="username" className="Input " placeholder="Username" />
+                    )
+                  }
+                  </div>
+                {Object.keys(errors).length && errors.email ? (
+                  <label className="mb-1 text-xs sm:text-sm tracking-wide text-red-400 text-left">Invalid email!</label>):(null)}
             </div>
 
             <div className="flex flex-col mb-6">
@@ -40,8 +78,14 @@ const SignUpForm = () => {
                     </svg>
                   </span>
                 </div>
-                <input id="password" type="password" name="password" className="Input" placeholder="Password" />
-              </div>
+                {Object.keys(errors).length && errors.password ? (
+                <input value={password} onChange={(e) => setPassword(e.target.value)} id="password" type="password" name="password" className="Input border border-red-400" placeholder="Password" />
+                ):(
+                <input value={password} onChange={(e) => setPassword(e.target.value)} id="password" type="password" name="password" className="Input" placeholder="Password" />  
+                )}
+               </div>
+               {Object.keys(errors).length && errors.password ? (
+                  <label className="mb-1 text-xs sm:text-sm tracking-wide text-red-400 text-left">Password is too short</label>):(null)}
             </div>
 
             <div className="flex flex-col mb-6">
@@ -54,12 +98,19 @@ const SignUpForm = () => {
                     </svg>
                   </span>
                 </div>
-                <input id="confirm-password" type="password" name="confirm-password" className="Input" placeholder="Confirm Password" />
+                {Object.keys(errors).length && errors.repassword ? (
+                <input value={repassword} onChange={(e) => setRepassword(e.target.value)} id="confirm-password" type="password" name="confirm-password" className="Input border border-red-400" placeholder="Confirm Password" />
+                ):(
+                  <input value={repassword}  onChange={(e) => setRepassword(e.target.value)} id="confirm-password" type="password" name="confirm-password" className="Input" placeholder="Confirm Password" />
+                )}
               </div>
+              {Object.keys(errors).length && errors.repassword ? (
+                  <label className="mb-1 text-xs sm:text-sm tracking-wide text-red-400 text-left">Password does not match!</label>):(null)}
             </div>
-
+            {Object.keys(errors).length && errors.account ? (
+                  <label className="mb-1 text-xs sm:text-sm tracking-wide text-red-400 text-left">{errors.account}</label>):(null)}
             <div className="flex w-full">
-              <button type="submit" className="flex items-center justify-center focus:outline-none text-beige text-sm sm:text-base bg-dark/80 hover:bg-dark rounded py-2 w-full transition duration-150 ease-in">
+              <button onClick={handleSignUp} type="submit" className="flex items-center justify-center focus:outline-none text-beige text-sm sm:text-base bg-dark/80 hover:bg-dark rounded py-2 w-full transition duration-150 ease-in">
                 <span className="mr-2 uppercase">Sign up</span>
                 <span>
                   <svg className="h-6 w-6" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
