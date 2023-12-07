@@ -203,7 +203,7 @@ app.get('/get-messages/:conversationID', async (req, res) => {
     const messagesRef = db.collection('Messages');
 
     // Fetch messages for the specified conversationID
-    const snapshot = await messagesRef.where('ConversationID', '==', conversationID).get();
+    const snapshot = await messagesRef.where('ConversationID', '==', conversationID).orderBy('Time', 'asc').get();
   
     const Messages = [];
     

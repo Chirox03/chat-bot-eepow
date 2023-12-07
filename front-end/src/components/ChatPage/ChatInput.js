@@ -4,12 +4,18 @@ import { useState } from "react";
 const ChatInput = ({updateMessage}) => {
   const [message, setMessage] = useState('');
   const handleMesseageChange = (e) => {
-      setMessage(e.target.value)
+    e.preventDefault();
+    setMessage(e.target.value)
+    console.log(message);
   }
   const handleSend = () => {
-    const sender="User"
-    updateMessage(message,sender);
-  }
+    const sender = "User";
+    console.log("Input ",message);
+    if(message === '') return;
+    // Use the functional form of setMessage to get the latest state
+    updateMessage(message, sender);
+    setMessage('');
+  };
   return (
     <div className="ChatInput pb-4">
       <div>
@@ -20,13 +26,20 @@ const ChatInput = ({updateMessage}) => {
             type="text"
             className="flex w-full border rounded-xl focus:outline-none focus:border-darker focus:ring-dark pl-4 h-10"
             placeholder="Type your message..."
+            value={message}
             onChange={handleMesseageChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSend();
+              }
+            }}
             required
           />
         </div>
       </div>
       <div className="ml-4">
-        <button onClick={handleSend} className="flex items-center justify-center bg-darker/70 hover:bg-darker/60 rounded-xl text-white px-4 py-2 flex-shrink-0"> 
+        <button onClick={handleSend}
+         className="flex items-center justify-center bg-darker/70 hover:bg-darker/60 rounded-xl text-white px-4 py-2 flex-shrink-0"> 
           <span>Send</span>
           <span className="ml-2">
             <svg

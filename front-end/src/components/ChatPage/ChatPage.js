@@ -20,21 +20,20 @@ const ChatPage = () => {
   const updateMessage = async (message, sender) => {
     console.log("message:", message);
     console.log("sender:", sender);
-    setNewMessage({
-
-      message:{
-        
+    const newMessage_={
+      message:{     
         From: sender,
         Data: message,
       }
-      } );
+      };
     try {
       // Make a PUT request to update the message
-      const response = await axios.post(`http://localhost:3001/update-messages/${activeConversation.id}`, newMessage);
-  
+      const response = await axios.post(`http://localhost:3001/update-messages/${activeConversation.id}`, newMessage_);
+      
       // Check if the request was successful
       if (response.status === 200) {
         console.log('Message updated successfully:', response.data);
+        setNewMessage(newMessage_);
         // Handle success as needed
       } else {
         console.error('Error updating message:', response.status, response.data);
