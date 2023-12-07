@@ -38,7 +38,21 @@ usersRef.onSnapshot((snapshot) => {
     }
   });
 });
+app.post('/add-user', async (req, res) => {
+  try {
+    const { userID,username} = req.body;
 
+    // Add user to Firestore with the provided user ID as document ID
+    await db.collection('Users').doc(userID).set({
+      'Username':username
+    });
+
+    res.json({ success: true, message: 'User added successfully.' });
+  } catch (error) {
+    console.error('Error adding user:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 app.get('/verify-email', async (req, res) => {
     try {
       const { email } = req.query; // Use req.query to get query parameters
@@ -77,6 +91,25 @@ app.get('/verify-email', async (req, res) => {
     } catch (error) {
       console.error('Error verifying account:', error);
       return res.status(500).json({ error: 'Internal server error.' });
+    }
+  });
+  app.get('/get-user/:userID', async (req, res) =>{
+    try{
+      const {userID} = req.params;
+      if(!userID){
+        return res.status(400).json({ error: 'UserID is required in the request parameters.' });
+      }
+      const UserDoc =await db.collection('Users').doc(userID).get();
+      
+      if(!UserDoc.exists){
+        return res.status(404).json({ error: 'User not found.' });
+      }
+      const userData = UserDoc.data();
+     res.json({ success: true, user: userData });
+      
+    }catch{
+      console.error('Error getting user:', error.message);
+      res.status(500).json({ success: false, error: error.message });
     }
   });
   app.get('/get-conversations/:userID', async (req, res) => {
