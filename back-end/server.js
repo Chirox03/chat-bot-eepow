@@ -96,6 +96,7 @@ app.get('/verify-email', async (req, res) => {
   app.get('/get-user/:userID', async (req, res) =>{
     try{
       const {userID} = req.params;
+      console.log(userID)
       if(!userID){
         return res.status(400).json({ error: 'UserID is required in the request parameters.' });
       }
@@ -105,6 +106,7 @@ app.get('/verify-email', async (req, res) => {
         return res.status(404).json({ error: 'User not found.' });
       }
       const userData = UserDoc.data();
+      console.log(userData)
      res.json({ success: true, user: userData });
       
     }catch{

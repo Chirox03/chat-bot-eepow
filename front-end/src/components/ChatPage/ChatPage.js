@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from "react";
 import Conversation from "./Conversation/Conversation";
+import { useNavigate } from "react-router-dom";
 import ChatInput from "./ChatInput";
 import Sidebar from "./SideBar/SideBar.js";
 import useAuth from "../../AuthContext";
+import { getAuth } from "firebase/auth";
 import axios from "axios";
 const ChatPage = () => {
   const { currentUser, login, logout } = useAuth();
   const [conversations, setConversations] = useState([]); // Initialize as an empty array
   const [activeConversation, setActiveConversation] = useState(null); // Initialize as null or a default value
   const [newMessage, setNewMessage] = useState();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (currentUser === null) {
+      // Navigate to "/" if user is null
+      navigate('/');
+    } else {
+      console.log('User now:', currentUser);
+    }
+    // The empty dependency array ensures this effect runs only once when the component mounts
+  }, [currentUser, navigate]);
   useEffect(() => {
     // Fetch conversations when the component mounts or when the user changes
     console.log(currentUser);
@@ -48,22 +60,19 @@ const ChatPage = () => {
   const fetchConversations = async () => {
     try {
       // Make an API request to get conversations for the current user
-      if (currentUser && currentUser.userID) {
-      const response = await fetch(`http://localhost:3001/get-conversations/udWlMJuTAdkq4l2SWcAK`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      if (currentUser) {
+        const response = await axios.get(`http://localhost:3001/get-conversations/${currentUser.uid}`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
       
-      const data = await response.json();
-      console.log(data)
       // Update state with the fetched conversations
-      setConversations(data.conversations);
+      setConversations(response.data.conversations);
 
       // Set the active conversation to the first conversation (you can adjust this logic)
-      if (data.conversations && data.conversations.length > 0) {
-        setActiveConversation(data.conversations[0]);
+      if (response.data.conversations && response.data.conversations.length > 0) {
+        setActiveConversation(response.data.conversations[0]);
       }}
     } catch (error) {
       console.log("Error fetching conversations:", error);

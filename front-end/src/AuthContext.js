@@ -8,16 +8,17 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(()=>{
      // Try to get user information from localStorage on initial load
-     const storedUser = localStorage.getItem('currentUser');
-     return storedUser ? JSON.parse(storedUser) : null;
   });
+  const [loading,setLoading] = useState(true)
   const [logoutTimer, setLogoutTimer] = useState(null);
   useEffect(() => {
-    console.log('Current User:', currentUser);
-    if (currentUser) {
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    }
-  }, [currentUser]);
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      setCurrentUser(user)
+      setLoading(false)
+    })
+
+    return unsubscribe
+  }, [])
   const validEmailPassword = (email,password) =>{
     let err = {}
     if(email.includes('@') != true){
@@ -40,8 +41,7 @@ export function AuthProvider({ children }) {
     // If the signup is successful, you can access the user information from the result
       const response = await axios.post('http://localhost:3001/add-user', {
         UserID: result.user.id,
-        // Include any additional user data you want to send to the server
-        // For example: email, username, etc.
+       
       });
       return null;
     // Additional steps, such as setting the user's display name or sending a verification email, can be added here.
@@ -89,7 +89,7 @@ export function AuthProvider({ children }) {
   };
   const login = async (email, password) => {
     const authInstance = getAuth();
-    let err = validEmailPassword(email,password);
+    let err = validEmailPassword(email, password);
     if(Object.keys(err).length){
       return err;
     }
@@ -97,12 +97,13 @@ export function AuthProvider({ children }) {
       alert(email)
      
       const result = await signInWithEmailAndPassword(authInstance, email, password);
-      
+      const response = await axios.get(`http://localhost:3001/get-user/${result.user.uid}`);
+      console.log(response.data)
       setCurrentUser({
         userID: result.user.uid,
-        displayName: email,
+        displayName: response.data.user.Username,
       });
-  
+      
       // Set a timer for logout
       const timer = setTimeout(logout, 30 * 60 * 1);
       setLogoutTimer(timer);
@@ -136,7 +137,7 @@ export function AuthProvider({ children }) {
     signup
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 }
 
 export default function useAuth() {
