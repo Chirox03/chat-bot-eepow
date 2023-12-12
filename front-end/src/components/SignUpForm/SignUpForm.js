@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import useAuth from "../../AuthContext";
+import { useNavigate } from "react-router-dom";
 const SignUpForm = () => {
-  const { currentUser, googleSignIn, signup, logout } = useAuth();
+  const navigate = useNavigate();
+  const { currentUser, googleSignIn, googleSignUp, signup, logout } = useAuth();
   const [errors, setErrors] = useState({});
   const [email,setEmail] = useState('');
   const [password,setPassword] = useState('');
   const [repassword,setRepassword] = useState('');
+  const handleGoogleSignUp = async (e) =>{
+    e.preventDefault();
+    const res = await googleSignUp();
+    console.log(res)
+    if(res.error){
+      alert(res.error)
+    } else{
+      navigate('/')
+    }
+  }
   const handleSignUp = async (e)=>{
     console.log(email,password,repassword)
     e.preventDefault();
@@ -21,7 +33,7 @@ const SignUpForm = () => {
       return;
     }
     err = await signup(email,password);
-    if(Object.keys(err).length != 0)
+    if(err.error !=null)
     {
       e.preventDefault();
       console.log(err)
@@ -31,12 +43,13 @@ const SignUpForm = () => {
       return;
     }
     alert('Sign up successfull');
+    
   }
   return (
     <div className="LoginForm">
       <div className="flex flex-col bg-light shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-md w-full max-w-md">
         <div className="font-medium self-center text-xl sm:text-2xl uppercase text-gray-800">Sign up to Eepow</div>
-        <button className="But">
+        <button onClick={handleGoogleSignUp} className="But">
           <span className="absolute left-0 top-0 flex items-center justify-center h-full w-10 text-blue-500">
             <i className="fab fa-facebook-f"></i>
           </span>

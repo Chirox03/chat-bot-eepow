@@ -19,6 +19,11 @@ export function AuthProvider({ children }) {
 
     return unsubscribe
   }, [])
+  // axios.interceptors.request.use(request => {
+  //   console.log('Starting Request', JSON.stringify(request, null, 2))
+  //   return request
+  // })
+  
   const validEmailPassword = (email,password) =>{
     let err = {}
     if(email.includes('@') != true){
@@ -37,13 +42,14 @@ export function AuthProvider({ children }) {
     }
     try{
       const result = await createUserWithEmailAndPassword(authInstance, email, password);
-      console.log('res',result);
+      
     // If the signup is successful, you can access the user information from the result
-      const response = await axios.post('http://localhost:3001/add-user', {
-        UserID: result.user.id,
-       
-      });
-      return null;
+   console.log(result.user.uid)
+    const response = await axios.post('http://localhost:3001/add-user', {
+      'UserID': result.user.uid,
+      'Type': 'email'
+    });
+      return {error : null};
     // Additional steps, such as setting the user's display name or sending a verification email, can be added here.
     } catch (error) {
     // Handle errors that might occur during signup
@@ -54,30 +60,43 @@ export function AuthProvider({ children }) {
     return error;
     }
   }
+  const googleSignUp = async () =>{
+    const provider = new GoogleAuthProvider();
+    const authInstance = getAuth();
+    try {
+      const result = await signInWithPopup(authInstance, provider);
+      console.log(result.user.uid)
+      const response = await axios.post('http://localhost:3001/add-user', {
+        'UserID': result.user.id,
+        'Type':'google'
+      });
+      console.log(response)
+      if(response.statusText != 'Ok')
+      {
+        return {'error':null}
+      }else{
+        console.error('Sign up with google failed',response.statusText);
+        return {'error':'Sign up failed' +response.status + response.statusText}
+       // alert('Sign up failed');
+      }
+    }  catch (error) {
+      console.error('Google sign up failed:', error.message);
+     // alert('Login failed');
+    }
+  }
   const googleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     const authInstance = getAuth();
     try {
       const result = await signInWithPopup(authInstance, provider);
-      const emailQueryParam = encodeURIComponent(result.user.email);
-      const response = await fetch(`http://localhost:3001/verify-email?email=${emailQueryParam}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const emailQueryParam = encodeURIComponent(result.user.uid);
+      const response = await axios.get(`http://localhost:3001/get-user/${result.user.uid}`);
+      console.log(response.statusText)
+      if (response.statusText === 'OK') {
+      setCurrentUser({
+        userID: result.user.uid,
+        displayName: (result.user.Username ? result.user.Username : 'meomeo') ,
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        // Update currentUser based on the API response
-        console.log(data)
-        setCurrentUser({
-          userID: data.userID,
-          displayName: data.user.displayName ,
-        });
-        // Set a timer for logout
-        const timer = setTimeout(logout, 30 * 60 * 100000);
-        setLogoutTimer(timer);
       } else {
         console.error('Email verification failed:', response.statusText);
         alert('Login failed');
@@ -94,8 +113,6 @@ export function AuthProvider({ children }) {
       return err;
     }
     try {
-      alert(email)
-     
       const result = await signInWithEmailAndPassword(authInstance, email, password);
       const response = await axios.get(`http://localhost:3001/get-user/${result.user.uid}`);
       console.log(response.data)
@@ -134,7 +151,8 @@ export function AuthProvider({ children }) {
     googleSignIn,
     logout,
     login,
-    signup
+    signup,
+    googleSignUp
   };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
