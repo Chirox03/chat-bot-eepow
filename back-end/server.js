@@ -139,12 +139,11 @@ app.get('/verify-email', async (req, res) => {
   });
   
   // Update Conversation
-app.post('/update-conversation/:userID', async (req, res) => {
+app.post('/add-conversation/:userID', async (req, res) => {
   try {
     const { userID } = req.params;
-    const { conversationData } = req.body;
-
-    if (!userID || !conversationData) {
+    const {Tittle} = req.body;
+    if (!userID|| !Tittle) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
     }
 
@@ -152,18 +151,39 @@ app.post('/update-conversation/:userID', async (req, res) => {
     const conversationsRef = db.collection('Conversations');
 
     // Add the userID to the conversation data
-    conversationData.UserID = userID;
+   
+    const newConversationRef = await conversationsRef.add({
+      Time: new Date().toISOString(),
+      Tittle: Tittle,
+      UserID: userID
+    });
 
-    // Add the conversation to Firestore
-    const newConversationRef = await conversationsRef.add(conversationData);
+    return res.status(200).json({ message: 'Conversation added successfully.', conversationID: newConversationRef.id });
+  } catch (error) {
+    console.error('Error adding conversation:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+app.post('/update-conversation/:conversationsID', async (req, res) => {
+  try {
+    const { conversationsID } = req.params;
+    const {Tittle} = req.body;
+    if (!conversationsID|| !Tittle) {
+      return res.status(400).json({ error: 'Invalid request parameters or body.' });
+    }
 
-    return res.status(200).json({ message: 'Conversation updated successfully.', conversationID: newConversationRef.id });
+    // Assuming your conversations are stored in a "Conversations" collection
+    await db.collection('Conversations').doc(conversationsID).set({
+      Tittle : Tittle
+    });
+    // Add the userID to the conversation data
+
+    return res.status(200).json({ message: 'Conversation updated successfully.' });
   } catch (error) {
     console.error('Error updating conversation:', error);
     return res.status(500).json({ error: 'Internal server error.' });
   }
 });
-
 // Update Messages
 app.post('/update-messages/:conversationID', async (req, res) => {
   console.log("new message",req.body)
