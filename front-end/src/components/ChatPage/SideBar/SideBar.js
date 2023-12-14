@@ -4,17 +4,20 @@ import { Button } from "@material-tailwind/react";
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
-const Sidebar = ({ conversations, activeConversation, onConversationClick }) => {
+import useAuth from "../../../AuthContext";
+import Conversation from "../Conversation/Conversation";
+const Sidebar = ({ conversations, activeConversation, onConversationClick ,fetchConversations}) => {
   // useEffect hook to monitor changes in activeConversation
   useEffect(() => {
     // Perform any necessary actions based on the activeConversation change
   }, [activeConversation]);
   // onConversationClick(activeConversation.id);
+  const { currentUser, login, logout } = useAuth();
   const handleNewChat = (e) =>{
     e.preventDefault();
-    axios.post('/user', {
-      firstName: 'Fred',
-      lastName: 'Flintstone'
+    axios.post('http://localhost:3001/add-conversation', {
+      userID: currentUser.uid,
+      Tittle: "New chat"
     })
     .then(function (response) {
       console.log(response);
@@ -22,6 +25,7 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick }) => 
     .catch(function (error) {
       console.log(error);
     });
+    fetchConversations();
   }
   return (
     <div className="SideBar scrollbar-thin scrollbar-thumb-darker flex flex-col relative pt-6 md:w-64">
@@ -48,25 +52,27 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick }) => 
       <Button onClick={handleNewChat} size='lg' variant="outlined" fullWidth className="text-lg text-center py-2 h-10">New Chat +</Button>
       </div >
       {/* Active Conversations */}
-      <div className="flex flex-grow overflow-y-auto flex-col flex-grow mt-4 mb-2">
+      <div className="flex no-scrollbar scroll-smooth flex-grow  scroll-auto overflow-y-auto flex-col flex-grow mt-4 mb-2">
         <div className="flex flex-row items-center justify-between text-xs m-2">
           <span className="font-bold">Active Conversations</span>
         </div>
-        <div className="flex flex-col space-y-1 mt-4 ">
+        <div className="flex flex-col space-y-1 mt-4 mr-2">
         {conversations.map((conversation) => (
-          <button
-          onClick={() => onConversationClick(conversation.id)}
-          key={conversation.id}
-          className={
-            "flex flex-row items-center rounded-xl p-2 " +
-            (conversation.id == activeConversation.id ? "bg-light" : "bg-dark")
+          Boolean(conversation.Hidden)===false ?(
+            <button
+            onClick={() => onConversationClick(conversation.id)}
+            key={conversation.id}
+            className={
+              "flex flex-row items-center rounded-xl p-2 " +
+            (conversation.id == activeConversation.id ? ("bg-light") : ("bg-dark"))
           }
           >
             <div className="flex items-center justify-center h-8 w-8 bg-beige rounded-full">
-              {conversation.Tittle?.charAt(0)} 
+              {conversation.Tittle?.charAt(0)}
             </div>
             <div className="ml-2 text-sm font-semibold">{conversation.Tittle}</div>
           </button>
+        ):(null)
         ))}
         </div>
       </div>

@@ -95,6 +95,7 @@ const ChatPage = () => {
         conversations={conversations}
         activeConversation={activeConversation}
         onConversationClick={handleConversationClick}
+        fetchConversations={fetchConversations}
       />
       <div className="flex flex-col w-full">
         <Conversation activeConversation={activeConversation} />

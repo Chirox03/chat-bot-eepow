@@ -44,7 +44,7 @@ const Conversation = ({ activeConversation }) => {
   },[fetchedMessages])
   return (
     <div className="Conversation">
-      <div className="relative w-full p-5 m-0 overflow-scroll bg-light space-y-2">
+      <div className="no-scrollbar relative w-full p-5 m-0 overflow-scroll bg-light space-y-2">
         {activeConversation && fetchedMessages
           ? fetchedMessages.map((item, index) => (
               <div key={item.id} className="p-3 rounded-lg col-start-1 col-end-13">

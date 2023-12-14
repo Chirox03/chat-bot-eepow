@@ -43,7 +43,7 @@ const SignUpForm = () => {
       return;
     }
     alert('Sign up successfull');
-    
+    navigate('/Chat')
   }
   return (
     <div className="LoginForm">
