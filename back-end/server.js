@@ -40,11 +40,11 @@ usersRef.onSnapshot((snapshot) => {
 });
 app.post('/add-user', async (req, res) => {
   try {
-    const { userID,username} = req.body;
-
+    const { UserID} = req.body;
+    console.log(UserID)
     // Add user to Firestore with the provided user ID as document ID
-    await db.collection('Users').doc(userID).set({
-      'Username':username
+    await db.collection('Users').doc(String(UserID)).set({
+      Username : "Pikachu"
     });
 
     res.json({ success: true, message: 'User added successfully.' });
@@ -96,6 +96,7 @@ app.get('/verify-email', async (req, res) => {
   app.get('/get-user/:userID', async (req, res) =>{
     try{
       const {userID} = req.params;
+      console.log(userID)
       if(!userID){
         return res.status(400).json({ error: 'UserID is required in the request parameters.' });
       }
@@ -105,6 +106,7 @@ app.get('/verify-email', async (req, res) => {
         return res.status(404).json({ error: 'User not found.' });
       }
       const userData = UserDoc.data();
+      console.log(userData)
      res.json({ success: true, user: userData });
       
     }catch{
@@ -124,9 +126,14 @@ app.get('/verify-email', async (req, res) => {
       const snapshot = await conversationsRef.where('UserID', '==', userID).get();
   
       const conversations = [];
+      
       snapshot.forEach((doc) => {
-        conversations.push({'id':doc.id, 'Tittle':doc.data().Tittle});
-
+        console.log(doc.data())
+        conversations.push({
+          Tittle: doc.data().Tittle,
+          Hidden: Boolean(doc.data().Hidden),
+          id: doc.id 
+        });
       });
       return res.status(200).json({ conversations });
     } catch (error) {
@@ -137,9 +144,9 @@ app.get('/verify-email', async (req, res) => {
   });
   
   // Update Conversation
-app.post('/add-conversation/:userID', async (req, res) => {
+app.post('/add-conversation', async (req, res) => {
   try {
-    const { userID } = req.params;
+    const { userID } = req.body;
     const {Tittle} = req.body;
     if (!userID|| !Tittle) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
