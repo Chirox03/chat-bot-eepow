@@ -12,9 +12,11 @@ const ChatPage = () => {
   const [activeConversation, setActiveConversation] = useState(null); // Initialize as null or a default value
   const [newMessage, setNewMessage] = useState();
   const navigate = useNavigate();
+  console.log(currentUser.displayName)
   useEffect(() => {
     if (currentUser === null) {
       // Navigate to "/" if user is null
+      alert(currentUser)
       navigate('/');
     } else {
       console.log('User now:', currentUser);
@@ -23,7 +25,7 @@ const ChatPage = () => {
   }, [currentUser, navigate]);
   useEffect(() => {
     // Fetch conversations when the component mounts or when the user changes
-    console.log(currentUser);
+    console.log("ssss",currentUser);
     fetchConversations();
   }, [currentUser]);
   useEffect(() => {
@@ -61,7 +63,7 @@ const ChatPage = () => {
     try {
       // Make an API request to get conversations for the current user
       if (currentUser) {
-        const response = await axios.get(`http://localhost:3001/get-conversations/${currentUser.uid}`, {
+        const response = await axios.get(`http://localhost:3001/get-conversations/${String(currentUser.uid)}`, {
           headers: {
             'Content-Type': 'application/json',
           },

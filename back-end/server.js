@@ -40,11 +40,11 @@ usersRef.onSnapshot((snapshot) => {
 });
 app.post('/add-user', async (req, res) => {
   try {
-    const { userID,username} = req.body;
-
+    const { UserID} = req.body;
+    console.log(UserID)
     // Add user to Firestore with the provided user ID as document ID
-    await db.collection('Users').doc(userID).set({
-      'Username':username
+    await db.collection('Users').doc(String(UserID)).set({
+      Username : "Pikachu"
     });
 
     res.json({ success: true, message: 'User added successfully.' });

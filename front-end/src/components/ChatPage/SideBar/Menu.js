@@ -17,7 +17,9 @@ const Menu = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-
+  useEffect(()=>{
+   console.log(currentUser)
+  },[currentUser])
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {

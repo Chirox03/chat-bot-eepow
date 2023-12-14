@@ -3,13 +3,26 @@ import Menu from "./Menu";
 import { Button } from "@material-tailwind/react";
 import { useState } from "react";
 import { useEffect } from "react";
+import axios from "axios";
 const Sidebar = ({ conversations, activeConversation, onConversationClick }) => {
   // useEffect hook to monitor changes in activeConversation
   useEffect(() => {
     // Perform any necessary actions based on the activeConversation change
   }, [activeConversation]);
   // onConversationClick(activeConversation.id);
-
+  const handleNewChat = (e) =>{
+    e.preventDefault();
+    axios.post('/user', {
+      firstName: 'Fred',
+      lastName: 'Flintstone'
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
   return (
     <div className="SideBar scrollbar-thin scrollbar-thumb-darker flex flex-col relative pt-6 md:w-64">
       <div className="flex flex-row items-center justify-center h-12 mar pt-6">
@@ -32,7 +45,7 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick }) => 
         <div className="ml-2 font-bold text-2xl">Eepow bot</div>
       </div>
       <div className="w-full mt-5">
-      <Button size='lg' variant="outlined" fullWidth className="text-lg text-center py-2 h-10">New Chat +</Button>
+      <Button onClick={handleNewChat} size='lg' variant="outlined" fullWidth className="text-lg text-center py-2 h-10">New Chat +</Button>
       </div >
       {/* Active Conversations */}
       <div className="flex flex-grow overflow-y-auto flex-col flex-grow mt-4 mb-2">
