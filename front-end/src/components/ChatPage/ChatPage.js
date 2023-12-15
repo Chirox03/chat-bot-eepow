@@ -6,6 +6,7 @@ import Sidebar from "./SideBar/SideBar.js";
 import useAuth from "../../AuthContext";
 import { getAuth } from "firebase/auth";
 import axios from "axios";
+import ReactMarkdown from 'react-markdown'
 const ChatPage = () => {
   const { currentUser, login, logout } = useAuth();
   const [conversations, setConversations] = useState([]); // Initialize as an empty array
@@ -29,8 +30,26 @@ const ChatPage = () => {
     fetchConversations();
   }, [currentUser]);
   useEffect(() => {
-    fetchConversations();
-  },[newMessage])
+    async function refetch(){
+      try {
+        console.log("New message:",newMessage)
+        // Make a PUT request to update the message
+        const response = await axios.post(`http://localhost:3001/update-messages/${activeConversation.id}`, newMessage);
+        
+        // Check if the request was successful
+        if (response.status === 200) {
+          console.log('Message updated successfully:', response.data);
+        }else {
+          console.error('Error updating message:', response.status, response.data);
+        }}catch (error) {
+          console.error('Error updating message:', error.message);
+          // Handle the error as needed
+        }
+        fetchConversations();
+        setNewMessage('')
+  }
+  refetch();
+},[newMessage])
   const updateMessage = async (message, sender) => {
     console.log("message:", message);
     console.log("sender:", sender);
@@ -40,23 +59,27 @@ const ChatPage = () => {
         Data: message,
       }
       };
-    try {
-      // Make a PUT request to update the message
-      const response = await axios.post(`http://localhost:3001/update-messages/${activeConversation.id}`, newMessage_);
-      
-      // Check if the request was successful
-      if (response.status === 200) {
-        console.log('Message updated successfully:', response.data);
-        setNewMessage(newMessage_);
-        // Handle success as needed
-      } else {
-        console.error('Error updating message:', response.status, response.data);
-        // Handle the error as needed
-      }
-    } catch (error) {
-      console.error('Error updating message:', error.message);
-      // Handle the error as needed
-    }
+    setNewMessage(newMessage_)
+      try{
+     
+        const res = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/predict',
+        {text: message});
+        console.log(res)
+        if(res.status === 200){
+           const timeout = setTimeout(
+            setNewMessage({
+              message:{
+                From: 'Eepow',
+                Data: res.data
+              }
+            }),5000) 
+            console.log("Get response successfully!")
+        
+        }else{
+          console.error("Error get response");
+        }}catch(err){
+          console.error(err.message)
+        }
 
   }
   const fetchConversations = async () => {

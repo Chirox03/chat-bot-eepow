@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-
+import ReactMarkdown from 'react-markdown'
 function Message({ message }) {
   //console.log("Message", message);
   return (
@@ -15,7 +15,7 @@ function Message({ message }) {
          {message.From.charAt(0)}
       </div> : null}
       <div className="relative ml-3 text-sm bg-beige py-2 px-4 shadow rounded-xl">
-        <div>{message.Data}</div>
+      <ReactMarkdown>{message.Data}</ReactMarkdown>
       </div>
     </div>
   );
