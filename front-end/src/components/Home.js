@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import useAuth from "../AuthContext";
 const Home = () => {
   const dynamicText = "Do you have an account?";
-  const navigate = useNavigate();
+  const { currentUser, login, logout } = useAuth();
+  const navigate = useNavigate(); 
+  console.log(currentUser)
   const handleSignIn = () => {
     navigate("/Login");
   };

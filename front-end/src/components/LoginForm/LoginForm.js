@@ -10,7 +10,7 @@ const LoginForm = () => {
   const [errors, setErrors] = useState({});
   useEffect(() => {
     if (currentUser) {
-      navigate('/Chat');
+      console.log("current user",currentUser)
     }
   }, [currentUser]);
   const handleLogin = async (e) => {
@@ -41,9 +41,14 @@ const LoginForm = () => {
     try{
       e.preventDefault();
       await googleSignIn();
+      navigate('/Chat')
     }catch(error){
       alert(error.message)
     }
+  }
+  const handleSignUp = (e) =>{
+    e.preventDefault();
+    navigate('/SignUp')
   }
   return (
     <div className="LoginForm">
@@ -87,7 +92,7 @@ const LoginForm = () => {
                     <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
                 </div>
-                <input value={email} onChange={(e)=>setemail(e.target.value)} id="success" name="email" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="email" />
+                <input value={email} onChange={(e)=>setemail(e.target.value)} id="success" name="email" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="Email" />
                
               </div>
               </div>)
@@ -145,7 +150,7 @@ const LoginForm = () => {
           </form>
         </div>
         <div className="flex justify-center items-center mt-6">
-          <button className="inline-flex items-center font-bold text-dark/80 hover:text-dark text-xs text-center" type="button">
+          <button onClick={handleSignUp} className="inline-flex items-center font-bold text-dark/80 hover:text-dark text-xs text-center" type="button">
             <span>
               <svg className="h-6 w-6" fill="none" strokeLinecap  inecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                 <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />

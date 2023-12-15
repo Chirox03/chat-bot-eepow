@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, createRef } from "react";
 import Message from "./Message";
 import axios from "axios";
-
+import { useRef } from "react"
 const Conversation = ({ activeConversation }) => {
   const fetchMessages = async (conversationID) => {
     try {
@@ -33,10 +33,18 @@ const Conversation = ({ activeConversation }) => {
 
     fetchMessagesForActiveConversation();
   }, [activeConversation]);
-
+  const ref = createRef();
+  useEffect(() => {
+    if(fetchedMessages){
+      ref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
+  },[fetchedMessages])
   return (
     <div className="Conversation">
-      <div className="relative w-full p-5 m-0 overflow-scroll bg-light space-y-2">
+      <div className="no-scrollbar relative w-full p-5 m-0 overflow-scroll bg-light space-y-2">
         {activeConversation && fetchedMessages
           ? fetchedMessages.map((item, index) => (
               <div key={item.id} className="p-3 rounded-lg col-start-1 col-end-13">
@@ -49,6 +57,7 @@ const Conversation = ({ activeConversation }) => {
               </div>
             ))
           : null}
+          <div ref={ref} />
       </div>
     </div>
   );
