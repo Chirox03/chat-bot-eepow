@@ -54,7 +54,6 @@ const Conversation = ({ activeConversation,newMessage,isLoading }) => {
                     Data: item.Data,
                   }}
                 />
-                
               </div>
             ))
           : null}

@@ -1,6 +1,7 @@
 const express = require('express')  
 const cors = require('cors')    
 const bodyParser = require('body-parser')
+const axios = require('axios');
 
 var admin = require("firebase-admin");
 
@@ -41,7 +42,6 @@ usersRef.onSnapshot((snapshot) => {
 app.post('/add-user', async (req, res) => {
   try {
     const { UserID} = req.body;
-    console.log(UserID)
     // Add user to Firestore with the provided user ID as document ID
     await db.collection('Users').doc(String(UserID)).set({
       Username : "Pikachu"
@@ -96,7 +96,6 @@ app.get('/verify-email', async (req, res) => {
   app.get('/get-user/:userID', async (req, res) =>{
     try{
       const {userID} = req.params;
-      console.log(userID)
       if(!userID){
         return res.status(400).json({ error: 'UserID is required in the request parameters.' });
       }
@@ -116,7 +115,6 @@ app.get('/verify-email', async (req, res) => {
   });
   app.get('/get-conversations/:userID', async (req, res) => {
     try {
-      console.log("hello")
       const { userID } = req.params;
       if (!userID) {
         return res.status(400).json({ error: 'UserID is required in the request parameters.' });
@@ -190,12 +188,25 @@ app.post('/update-conversation/:conversationsID', async (req, res) => {
   }
 });
 // Update Messages
+app.post('/get-response',async(req,res)=>{
+  try{
+    const {text} = req.params;
+    if(text==''){
+      return res.status(400).json({error:"Text is null"});
+    }
+    const response = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/predict', { text: text }, { withCredentials: true });
+
+    return res.status(200).json(response)
+  }catch(error){
+    console.error('Error get predict:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
 app.post('/update-messages/:conversationID', async (req, res) => {
   console.log("new message",req.body)
   try {
     const { conversationID } = req.params;
     const { message } = req.body;
-    console.log("ss",message)
     if (!conversationID || !message) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
     }
@@ -225,7 +236,6 @@ app.get('/get-messages/:conversationID', async (req, res) => {
     if (!conversationID) {
       return res.status(400).json({ error: 'ConversationID is required in the request parameters.' });
     }
-    console.log("conid",conversationID)
     // Assuming your messages are stored in a "Messages" subcollection within each conversation document
     const messagesRef = db.collection('Messages');
 
