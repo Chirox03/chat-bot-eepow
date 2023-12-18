@@ -12,30 +12,27 @@ const LoginForm = () => {
     if (currentUser) {
       console.log("current user",currentUser)
     }
+   
   }, [currentUser]);
   const handleLogin = async (e) => {
     e.preventDefault();
     let tmp_error = {}
-    tmp_error = await login(email,password);
-    if (Object.keys(tmp_error).length !== 0){
-      setPassword('');
-      setErrors(tmp_error)
-      return;
-    } 
     try {
       e.preventDefault();
       console.log('Login....');
       tmp_error = await login(email, password);
-      if(Object.keys(tmp_error).length){
+      console.log(tmp_error)  
+      if(tmp_error!=='Success'){
         setPassword('');
         setErrors(tmp_error)
       }
+      navigate('/Chat')
     } catch (error) {
       setPassword('');
       console.error('Login failed:', error.message);
       // You can add additional handling, such as displaying an error message to the user.
     }  
-    
+   
   };
   const handleLoginGoogle = async (e) => {
     try{

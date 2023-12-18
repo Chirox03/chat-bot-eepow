@@ -1,8 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import ReactMarkdown from 'react-markdown'
-function Message({ message }) {
-  //console.log("Message", message);
+function Message({ message ,isLoading=false}) {
   return (
     <div
       className={classNames(
@@ -15,7 +14,15 @@ function Message({ message }) {
          {message.From.charAt(0)}
       </div> : null}
       <div className="relative ml-3 text-sm bg-beige py-2 px-4 shadow rounded-xl">
-      <ReactMarkdown>{message.Data}</ReactMarkdown>
+        {isLoading? (
+        <div >  
+            <div className="bg-darker inline-block animate-pulse rounded-full h-2.5 w-2.5 border-t-2 border-primary border-solid mr-2"></div>
+            <div className="bg-darker inline-block animate-pulse rounded-full h-2.5 w-2.5 border-t-2 border-primary border-solid mr-2"></div>
+            <div className="bg-darker inline-block animate-pulse rounded-full h-2.5 w-2.5 border-t-2 border-primary border-solid"></div>
+      </div>
+      ):(
+      <ReactMarkdown>{String(message.Data)}</ReactMarkdown>
+      )}
       </div>
     </div>
   );

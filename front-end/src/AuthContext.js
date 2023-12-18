@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
  // Make sure to adjust the path based on your project structure
-import {onAuthStateChanged,updateProfile,GoogleAuthProvider ,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,getAuth} from "firebase/auth";
+import {onAuthStateChanged,updateProfile,setPersistence,GoogleAuthProvider ,browserSessionPersistence,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,getAuth} from "firebase/auth";
 import {auth} from './firebase';
 import { SignOutUser, userStateListener } from "./firebase";
 import axios from "axios";
@@ -91,6 +91,7 @@ export function AuthProvider({ children }) {
     const provider = new GoogleAuthProvider();
     const authInstance = getAuth();
     try {
+      await setPersistence(authInstance,browserSessionPersistence);
       const result = await signInWithPopup(authInstance, provider);
       // const response = await axios.get(`http://localhost:3001/get-user/${result.user.uid}`);
       // setTimeout(() => {
@@ -111,17 +112,12 @@ export function AuthProvider({ children }) {
       return err;
     }
     try {
+      await setPersistence(authInstance,browserSessionPersistence);
       const result = await signInWithEmailAndPassword(authInstance, email, password);
       const response = await axios.get(`http://localhost:3001/get-user/${result.user.uid}`);
       console.log(response.data)
-      // setCurrentUser({
-      //   userID: result.user.uid,
-      //   displayName: response.data.user.Username,
-      // });
-      
-      // Set a timer for logout
       alert("Logged in successfully!");
-      return "Sucess";
+      return "Success";
     } catch (error) {
       console.error('Email login failed:', error.message);
       return error.message;

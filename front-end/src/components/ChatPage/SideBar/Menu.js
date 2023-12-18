@@ -40,7 +40,7 @@ const Menu = () => {
         onClick={toggleDropdown}
         className={`w-full bg-${!isOpen ? "dark" : "darker"} text-white font-bold py-2 px-4 rounded`}
       >
-        {currentUser.displayName}
+        {currentUser.displayName?(currentUser.displayName):(currentUser.email)}
       </button>
       {isOpen && (
         <div className="absolute bottom-12 left-0 border shadow-lg z-10 w-full border-green">

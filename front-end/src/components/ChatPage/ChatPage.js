@@ -13,6 +13,7 @@ const ChatPage = () => {
   const [activeConversation, setActiveConversation] = useState(null); // Initialize as null or a default value
   const [newMessage, setNewMessage] = useState();
   const navigate = useNavigate();
+  const [loading,setLoading] = useState(false)
   console.log(currentUser.displayName)
   useEffect(() => {
     if (currentUser === null) {
@@ -26,7 +27,6 @@ const ChatPage = () => {
   }, [currentUser, navigate]);
   useEffect(() => {
     // Fetch conversations when the component mounts or when the user changes
-    console.log("ssss",currentUser);
     fetchConversations();
   }, [currentUser]);
   useEffect(() => {
@@ -45,7 +45,6 @@ const ChatPage = () => {
           console.error('Error updating message:', error.message);
           // Handle the error as needed
         }
-        fetchConversations();
         setNewMessage('')
   }
   refetch();
@@ -61,7 +60,7 @@ const ChatPage = () => {
       };
     setNewMessage(newMessage_)
       try{
-     
+        setLoading(true)
         const res = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/predict',
         {text: message});
         console.log(res)
@@ -74,7 +73,7 @@ const ChatPage = () => {
               }
             }),5000) 
             console.log("Get response successfully!")
-        
+        setLoading(false)
         }else{
           console.error("Error get response");
         }}catch(err){
@@ -121,7 +120,7 @@ const ChatPage = () => {
         fetchConversations={fetchConversations}
       />
       <div className="flex flex-col w-full">
-        <Conversation activeConversation={activeConversation} />
+        <Conversation activeConversation={activeConversation} newMessage={newMessage} isLoading={loading}/>
         <ChatInput updateMessage={updateMessage} />
       </div>
     </div>

@@ -2,7 +2,7 @@ import React, {useState, useEffect, createRef } from "react";
 import Message from "./Message";
 import axios from "axios";
 import { useRef } from "react"
-const Conversation = ({ activeConversation }) => {
+const Conversation = ({ activeConversation,newMessage,isLoading }) => {
   const fetchMessages = async (conversationID) => {
     try {
       const response = await axios.get(`http://localhost:3001/get-messages/${conversationID}`);
@@ -32,7 +32,7 @@ const Conversation = ({ activeConversation }) => {
     };
 
     fetchMessagesForActiveConversation();
-  }, [activeConversation]);
+  }, [activeConversation,newMessage]);
   const ref = createRef();
   useEffect(() => {
     if(fetchedMessages){
@@ -54,16 +54,22 @@ const Conversation = ({ activeConversation }) => {
                     Data: item.Data,
                   }}
                 />
-                <div
-                  className="inline-block h-8 w-8 animate-[spinner-grow_0.75s_linear_infinite] rounded-full bg-current align-[-0.125em] text-primary opacity-0 motion-reduce:animate-[spinner-grow_1.5s_linear_infinite]"
-                  role="status">
-                  <span
-                    className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-                  >Loading...</span>
-                </div>
+                
               </div>
             ))
           : null}
+          {isLoading?(
+          <div className="p-3 rounded-lg col-start-1 col-end-13">
+            <Message
+            message={{
+              From: 'Eepow',
+              Data: null,
+            }} 
+            isLoading={isLoading}
+            />
+            </div>
+            ) :(null)
+          }
           <div ref={ref} />
       </div>
     </div>
