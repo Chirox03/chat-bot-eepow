@@ -4,35 +4,59 @@ import useAuth from "../../AuthContext";
 import { useState,useEffect } from 'react';
 const LoginForm = () => {
   const navigate = useNavigate();
-  const [email, setemail] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { currentUser, googleSignIn, login, logout } = useAuth();
   const [errors, setErrors] = useState({});
+  const handleInputChange = (key, value) => {
+    setErrors((prevErrors) => ({ ...prevErrors, [key]: null }));
+    switch (key) {
+      case 'email':
+        setEmail(value);
+        break;
+      case 'password':
+        setPassword(value);
+        break;
+      default:
+        break;
+    }
+  };
+  const validateField = (field, errorMessage) => {
+    if (!field) {
+      setErrors((prevErrors) => ({ ...prevErrors, [field]: errorMessage }));
+      return false;
+    }
+    return true;
+  };
   useEffect(() => {
     if (currentUser) {
       console.log("current user",currentUser)
     }
    
   }, [currentUser]);
-  const handleLogin = async (e) => {
+  useEffect(()=>{
+console.log(errors)
+  },[errors])
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let tmp_error = {}
+
+    if (!validateField('email', 'Email cannot be empty') || !validateField('password', 'Password cannot be empty')) {
+      return;
+    }
+
     try {
-      e.preventDefault();
-      console.log('Login....');
-      tmp_error = await login(email, password);
-      console.log(tmp_error)  
-      if(tmp_error!=='Success'){
+      const response = await login(email, password);
+      if (response) {
+        console.log("meomeo",response)
         setPassword('');
-        setErrors(tmp_error)
+        setErrors(response);
+        return;
       }
-      navigate('/Chat')
+      navigate('/Chat');
     } catch (error) {
       setPassword('');
       console.error('Login failed:', error.message);
-      // You can add additional handling, such as displaying an error message to the user.
-    }  
-   
+    }
   };
   const handleLoginGoogle = async (e) => {
     try{
@@ -58,84 +82,53 @@ const LoginForm = () => {
           </span>
           <span>Login with Google</span>
         </button>
-        <div className="relative mt-10 h-px bg-light">
-          <div className="absolute left-0 top-0 flex justify-start w-full -mt-2">
-            <span className="bg-light:0.8 px-4 text-xs text-gray-500 uppercase">Or Login With email</span>
+        <div className="relative mt-7 h-px bg-light">
+          <div className="absolute left-0 top-0 my-4 flex justify-start w-full -mt-2">
+            <span className="bg-light:0.8 px-4  text-xs text-gray-500 uppercase">Or Login With email</span>
           </div>
+            <span className="text-red-700 text-xs">{errors.account}</span>
         </div>
-        <div className="mt-10">
+        <div className="mt-8">
           <form action="#">
             {/* <div className="flex flex-col mb-6"> */}
-            {Object.keys(errors).length && errors.email ? (
-              <div className="flex flex-col mb-6">
-               <label for="esucess" htmlFor="username" className="mb-1 text-xs sm:text-sm tracking-wide text-red-600 text-left">Email:</label>
-              <div className="relative">
-                <div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-                <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-
-                    <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+            {['email', 'password'].map((field) => (
+          <div key={field} className="flex flex-col mb-6">
+            <label htmlFor={field} className="mb-1 text-xs sm:text-sm tracking-wide text-gray-600 text-left">
+              {field === 'email' ? 'Email:' : 'Password:'}
+            </label>
+            <div className="relative">
+              <div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
+                <span>
+                  <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                    {field === 'email' ? (
+                      <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                    ) : (
+                      <path d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    )}
                   </svg>
-                </div>
-                <input value={email} onChange={(e)=>setemail(e.target.value)} id="success" name="email" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-red-400 w-full py-2 focus:outline-none focus:border-red-500" placeholder="Email" />
+                </span>
               </div>
-                <label className=" text-xs sm:text-sm tracking-wide text-red-600 text-left">{errors.email}</label>
-              </div>) :(
-                <div className="flex flex-col mb-6">
-              <label for="esucess" htmlFor="username" className="mb-1 text-xs sm:text-sm tracking-wide text-gray-600 text-left">Email:</label>
-              <div className="relative">
-                <div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-                <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-
-                    <path d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                  </svg>
-                </div>
-                <input value={email} onChange={(e)=>setemail(e.target.value)} id="success" name="email" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="Email" />
-               
-              </div>
-              </div>)
-              }
-
-            {Object.keys(errors).length && errors.password ?(
-                <div className="flex flex-col mb-6">
-                <label htmlFor="password" className="mb-1 text-xs sm:text-sm tracking-wide text-gray-600 text-left">Password: Must be at least 6 characters</label>
-                <div className="relative">
-                  <div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-                    <span>
-                      <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </span>
-                  </div>
-                  <input value={password} onChange={(e)=> setPassword(e.target.value)} id="password" type="password" name="password" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-red-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="Password" />
-                </div>
-                <label  className="mb-1 text-xs sm:text-sm tracking-wide text-red-600 text-left">Password is too short</label>
-              </div>
-            ):(
-              
-              <div className="flex flex-col mb-6">
-              <label htmlFor="password" className="mb-1 text-xs sm:text-sm tracking-wide text-gray-600 text-left">Password: Must be at least 6 characters</label>
-              <div className="relative">
-                <div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-                  <span>
-                    <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                      <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </span>
-                </div>
-                <input value={password} onChange={(e)=> setPassword(e.target.value)} id="password" type="password" name="password" className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-gray-400 w-full py-2 focus:outline-none focus:border-dark" placeholder="Password" />
-              </div>
+              <input
+                onChange={(e) => handleInputChange(field, e.target.value)}
+                id={field}
+                type={field === 'email' ? 'email' : 'password'}
+                name={field}
+                className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-beige w-full py-2 focus:outline-none focus:border-dark"
+                placeholder={field === 'email' ? 'Email' : 'Password'}
+              />
             </div>
-              )}
-              <label className='mb-1 text-xs sm:text-sm tracking-wide text-red-600 text-left'>{Object.keys(errors).length && errors.account ? (errors.account) : (null)}</label>
+              {errors && errors[field] && <span className="text-red-700 text-xs">{errors[field]}</span>}
+          </div>
+        ))}
             <div className="flex items-center mb-6 -mt-4">
               <div className="flex ml-auto">
-                <button className="inline-flex text-xs sm:text-sm text-dark/90 hover:text-dark" type="button">
+                <button className="inline-flex text-xs sm:text-sm text-darker/80 hover:text-darker/60" type="button">
                   Forgot Your Password?
                 </button>
               </div>
             </div>
             <div className="flex w-full">
-              <button type="submit" onClick={handleLogin} className="flex items-center justify-center text-white font-bold py-2 px-4 border-b-4 border-darker-700 hover:border-light-500 rounded bg-dark/90 hover:bg-dark rounded py-2 w-full transition duration-150 ease-in">
+              <button type="submit" onClick={handleSubmit} className="flex items-center justify-center text-white font-bold py-2 px-4 border-b-4 border-darker-700 hover:border-light-500 rounded bg-darker/60 hover:bg-darker/50 rounded py-2 w-full transition duration-150 ease-in">
                 <span className="mr-2 uppercase">Login</span>
                 <span>
                   <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
@@ -147,7 +140,7 @@ const LoginForm = () => {
           </form>
         </div>
         <div className="flex justify-center items-center mt-6">
-          <button onClick={handleSignUp} className="inline-flex items-center font-bold text-dark/80 hover:text-dark text-xs text-center" type="button">
+          <button onClick={handleSignUp} className="inline-flex items-center font-bold text-darker/80 hover:text-darker/60 text-xs text-center" type="button">
             <span>
               <svg className="h-6 w-6" fill="none" strokeLinecap  inecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                 <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />

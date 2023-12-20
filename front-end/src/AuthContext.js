@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
  // Make sure to adjust the path based on your project structure
-import {onAuthStateChanged,updateProfile,setPersistence,GoogleAuthProvider ,browserSessionPersistence,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,getAuth} from "firebase/auth";
+import {onAuthStateChanged, reauthenticateWithCredential, EmailAuthProvider,updateProfile,setPersistence,GoogleAuthProvider ,browserSessionPersistence,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,getAuth} from "firebase/auth";
 import {auth} from './firebase';
 import { SignOutUser, userStateListener } from "./firebase";
 import axios from "axios";
@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user)
-      alert("Updated")
+      // alert("Updated")
       setLoading(false)
     });
     return unsubscribe;
@@ -45,12 +45,19 @@ export function AuthProvider({ children }) {
       const result = await createUserWithEmailAndPassword(authInstance, email, password);
       
     // If the signup is successful, you can access the user information from the result
-   console.log(result.user.uid)
+    console.log(result.user.uid)
+    if(result.user.displayName == null){
+
+    authInstance.updateCurrentUser(result.user.uid,{
+      displayName: email
+    })
+  }
     const response = await axios.post('http://localhost:3001/add-user', {
       'UserID': result.user.uid,
       'Username': result.user.email,
       'Type': 'email'
     });
+   
       return {error : null};
     // Additional steps, such as setting the user's display name or sending a verification email, can be added here.
     } catch (error) {
@@ -73,6 +80,7 @@ export function AuthProvider({ children }) {
         'Username': result.user.displayName,
         'Type':'google'
       });
+      
       console.log(response)
       if(response.statusText != 'Ok')
       {
@@ -93,16 +101,11 @@ export function AuthProvider({ children }) {
     try {
       await setPersistence(authInstance,browserSessionPersistence);
       const result = await signInWithPopup(authInstance, provider);
-      // const response = await axios.get(`http://localhost:3001/get-user/${result.user.uid}`);
-      // setTimeout(() => {
-      //   console.log('currentUser after delay:', authInstance.currentUser);
-      // }, 500);
-      // console.log(response.statusText)
       console.log('res',{result})
       
     }  catch (error) {
       console.error('Google login failed:', error.message);
-      alert('Login failed');
+      // alert('Login failed');
     }
   };
   const login = async (email, password) => {
@@ -117,10 +120,12 @@ export function AuthProvider({ children }) {
       const response = await axios.get(`http://localhost:3001/get-user/${result.user.uid}`);
       console.log(response.data)
       alert("Logged in successfully!");
-      return "Success";
+      return null;
     } catch (error) {
+      console.log(error)
       console.error('Email login failed:', error.message);
-      return error.message;
+      if(error.message=== 'Firebase: Error (auth/invalid-login-credentials).')
+       return {account: 'Inccorect email or password'};
     }
   };
   
@@ -134,14 +139,37 @@ export function AuthProvider({ children }) {
       
     }
   };
+  const changePassword = async (oldPassword, newPassword) =>{
+    const authInstance = getAuth();
+    // Re-authenticate the user with their current password
+    console.log(oldPassword)
+    const  credentials = EmailAuthProvider.credential(currentUser.email, oldPassword);
+    try {
+      const res = await reauthenticateWithCredential(authInstance.currentUser, credentials);
+      console.log(res)
+      return {ok:true}
+    } catch (error) {
+      console.error('Reauthentication failed:', error.message);
+      return { error: 'Reauthentication failed. Please check your old password.' };
+    }
 
+    // Change the user's password to the new one
+    // try {
+    //   await updatePassword(user, newPassword);
+    //   return { error: null, message: 'Password changed successfully.' };
+    // } catch (error) {
+    //   console.error('Password update failed:', error.message);
+    //   return { error: 'Password update failed. Please try again later.' };
+    // }
+  };
   const value = {
     currentUser,
     googleSignIn,
     logout,
     login,
     signup,
-    googleSignUp
+    googleSignUp,
+    changePassword
   };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;

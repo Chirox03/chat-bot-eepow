@@ -1,109 +1,100 @@
 import React, { useState, useEffect } from "react";
-import Conversation from "./Conversation/Conversation";
 import { useNavigate } from "react-router-dom";
-import ChatInput from "./ChatInput";
-import Sidebar from "./SideBar/SideBar.js";
-import useAuth from "../../AuthContext";
-import { getAuth } from "firebase/auth";
 import axios from "axios";
-import ReactMarkdown from 'react-markdown'
+import Sidebar from "./SideBar/SideBar.js";
+import Conversation from "./Conversation/Conversation";
+import ChatInput from "./ChatInput";
+import useAuth from "../../AuthContext";
+
 const ChatPage = () => {
-  const { currentUser, login, logout } = useAuth();
-  const [conversations, setConversations] = useState([]); // Initialize as an empty array
-  const [activeConversation, setActiveConversation] = useState(null); // Initialize as null or a default value
+  const { currentUser } = useAuth();
+  const [conversations, setConversations] = useState([]);
+  const [activeConversation, setActiveConversation] = useState(null);
   const [newMessage, setNewMessage] = useState();
   const navigate = useNavigate();
-  const [loading,setLoading] = useState(false)
-  console.log(currentUser.displayName)
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    if (currentUser === null) {
-      // Navigate to "/" if user is null
-      alert(currentUser)
+    if (!currentUser) {
       navigate('/');
-    } else {
-      console.log('User now:', currentUser);
     }
-    // The empty dependency array ensures this effect runs only once when the component mounts
   }, [currentUser, navigate]);
+
   useEffect(() => {
-    // Fetch conversations when the component mounts or when the user changes
     fetchConversations();
   }, [currentUser]);
+
   useEffect(() => {
-    async function refetch(){
+    async function refetch() {
       try {
-        console.log("New message:",newMessage)
-        // Make a PUT request to update the message
         const response = await axios.post(`http://localhost:3001/update-messages/${activeConversation.id}`, newMessage);
-        
-        // Check if the request was successful
+
         if (response.status === 200) {
           console.log('Message updated successfully:', response.data);
-        }else {
+        } else {
           console.error('Error updating message:', response.status, response.data);
-        }}catch (error) {
-          console.error('Error updating message:', error.message);
-          // Handle the error as needed
         }
-        setNewMessage('')
-  }
-  refetch();
-},[newMessage])
+      } catch (error) {
+        console.error('Error updating message:', error.message);
+      }
+      if (newMessage && newMessage.From !== 'Eepow') {
+        setNewMessage('');
+      }
+    }
+    refetch();
+  }, [newMessage, activeConversation]);
+
   const updateMessage = async (message, sender) => {
-    console.log("message:", message);
-    console.log("sender:", sender);
-    const newMessage_={
-      message:{     
+    const newMessage_ = {
+      message: {
         From: sender,
         Data: message,
-      }
-      };
-    setNewMessage(newMessage_)
-      try{
-        setLoading(true)
-        const res = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/predict',
-        {text: message});
-        console.log(res)
-        if(res.status === 200){
-           const timeout = setTimeout(
-            setNewMessage({
-              message:{
-                From: 'Eepow',
-                Data: res.data
-              }
-            }),5000) 
-            console.log("Get response successfully!")
-        setLoading(false)
-        }else{
-          console.error("Error get response");
-        }}catch(err){
-          console.error(err.message)
-        }
+      },
+    };
+    setNewMessage(newMessage_);
 
-  }
+    try {
+      setLoading(true);
+      const res = await axios.post('http://localhost:3001/get-response', { text: message });
+
+      if (res.status === 200) {
+        const timeout = setTimeout(
+          setNewMessage({
+            message: {
+              From: 'Eepow',
+              Data: res.data,
+            },
+          }),
+          5000
+        );
+        console.log('Get response successfully!');
+        setLoading(false);
+      } else {
+        console.error('Error getting response');
+      }
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
   const fetchConversations = async () => {
     try {
-      // Make an API request to get conversations for the current user
       if (currentUser) {
         const response = await axios.get(`http://localhost:3001/get-conversations/${String(currentUser.uid)}`, {
           headers: {
             'Content-Type': 'application/json',
           },
         });
-      
-      // Update state with the fetched conversations
-      setConversations(response.data.conversations);
-
-      // Set the active conversation to the first conversation (you can adjust this logic)
-      if (response.data.conversations && response.data.conversations.length > 0) {
-        setActiveConversation(response.data.conversations[0]);
-      }}
+        setConversations(response.data.conversations);
+        console.log("fetched conversations",response.data.conversations)
+        if (response.data.conversations && response.data.conversations.length > 0) {
+          setActiveConversation(response.data.conversations[0]);
+        }
+      }
     } catch (error) {
       console.log("Error fetching conversations:", error);
     }
   };
-
-  console.log("activeConversation:", activeConversation);
 
   const handleConversationClick = (conversationId) => {
     const selectedConversation = conversations.find((conversation) => conversation.id === conversationId);
@@ -120,7 +111,7 @@ const ChatPage = () => {
         fetchConversations={fetchConversations}
       />
       <div className="flex flex-col w-full">
-        <Conversation activeConversation={activeConversation} newMessage={newMessage} isLoading={loading}/>
+        <Conversation activeConversation={activeConversation} newMessage={newMessage} isLoading={loading} />
         <ChatInput updateMessage={updateMessage} />
       </div>
     </div>

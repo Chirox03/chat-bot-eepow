@@ -24,7 +24,7 @@ const ChatInput = ({updateMessage}) => {
         <div className="relative w-full">
           <input
             type="text"
-            className="flex w-full border rounded-xl focus:outline-none focus:border-darker focus:ring-dark pl-4 h-10"
+            className="flex w-full border rounded-xl hover:border-darker/60 focus:outline-none focus:border-darker focus:ring-dark pl-4 h-10"
             placeholder="Type your message..."
             value={message}
             onChange={handleMesseageChange}
@@ -39,7 +39,7 @@ const ChatInput = ({updateMessage}) => {
       </div>
       <div className="ml-4">
         <button onClick={handleSend}
-         className="flex items-center justify-center bg-darker/70 hover:bg-darker/60 rounded-xl text-white px-4 py-2 flex-shrink-0"> 
+         className="flex items-center justify-center bg-darker/80 hover:bg-darker/60 rounded-xl text-white px-4 py-2 flex-shrink-0"> 
           <span>Send</span>
           <span className="ml-2">
             <svg

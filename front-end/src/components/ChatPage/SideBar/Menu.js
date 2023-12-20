@@ -38,7 +38,7 @@ const Menu = () => {
     <div ref={menuRef} className="w-full relative block text-left border border-green">
       <button
         onClick={toggleDropdown}
-        className={`w-full bg-${!isOpen ? "dark" : "darker"} text-white font-bold py-2 px-4 rounded`}
+        className={`w-full bg-${!isOpen ? "dark" : "darker/60"} hover:bg-darker/50 text-white text-sm font-bold py-3 px-4 rounded`}
       >
         {currentUser.displayName?(currentUser.displayName):(currentUser.email)}
       </button>

@@ -108,7 +108,7 @@ app.get('/verify-email', async (req, res) => {
       console.log(userData)
      res.json({ success: true, user: userData });
       
-    }catch{
+    }catch(error){
       console.error('Error getting user:', error.message);
       res.status(500).json({ success: false, error: error.message });
     }
@@ -190,13 +190,14 @@ app.post('/update-conversation/:conversationsID', async (req, res) => {
 // Update Messages
 app.post('/get-response',async(req,res)=>{
   try{
-    const {text} = req.params;
+    const {text} = req.body;
     if(text==''){
       return res.status(400).json({error:"Text is null"});
     }
-    const response = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/predict', { text: text }, { withCredentials: true });
-
-    return res.status(200).json(response)
+    console.log(text)
+    const response = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/predict', { text: text });
+    console.log(response)
+    return res.status(200).json(response.data)
   }catch(error){
     console.error('Error get predict:', error);
     return res.status(500).json({ error: 'Internal server error.' });
