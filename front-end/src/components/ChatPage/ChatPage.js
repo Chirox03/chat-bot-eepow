@@ -10,10 +10,10 @@ const ChatPage = () => {
   const { currentUser } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState(null);
-  const [newMessage, setNewMessage] = useState();
+  const [newMessage, setNewMessage] = useState('');
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
+  const [eepowResponse,setEepowResponse] = useState();
   useEffect(() => {
     if (!currentUser) {
       navigate('/');
@@ -25,58 +25,74 @@ const ChatPage = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    async function refetch() {
+    async function postMessageToFirebase(message) {
       try {
-        const response = await axios.post(`http://localhost:3001/update-messages/${activeConversation.id}`, newMessage);
-
+        // Post the message to Firebase
+        const response = await axios.post(`http://localhost:3001/update-messages/${activeConversation.id}`, { message });
+  
         if (response.status === 200) {
-          console.log('Message updated successfully:', response.data);
+          console.log('Message posted to Firebase successfully:', response.data);
         } else {
-          console.error('Error updating message:', response.status, response.data);
+          console.error('Error posting message to Firebase:', response.status, response.data);
         }
       } catch (error) {
-        console.error('Error updating message:', error.message);
-      }
-      if (newMessage && newMessage.From !== 'Eepow') {
-        setNewMessage('');
+        console.error('Error posting message to Firebase:', error.message);
       }
     }
-    refetch();
-  }, [newMessage, activeConversation]);
+  
+    if (newMessage) {
+      // If the message is from the user, post it to Firebase
+      postMessageToFirebase(newMessage.message);
+      setNewMessage('');
+    }
+  
+    if (eepowResponse) {
+      
+      // If the response is from Eepow, post it to Firebase
+      postMessageToFirebase(eepowResponse.message);
+      setEepowResponse(null); // Clear the eepowResponse state
+    }
+  }, [newMessage, eepowResponse]);
+  
 
   const updateMessage = async (message, sender) => {
-    const newMessage_ = {
-      message: {
-        From: sender,
-        Data: message,
-      },
-    };
-    setNewMessage(newMessage_);
-
     try {
-      setLoading(true);
-      const res = await axios.post('http://localhost:3001/get-response', { text: message });
-
-      if (res.status === 200) {
-        const timeout = setTimeout(
-          setNewMessage({
-            message: {
-              From: 'Eepow',
-              Data: res.data,
-            },
-          }),
-          5000
-        );
-        console.log('Get response successfully!');
-        setLoading(false);
+      // Send user message
+      const userMessage = {
+        message: {
+          From: sender,
+          Data: message,
+        },
+      };
+      setNewMessage(userMessage);
+      setLoading(true)
+      // Get response from server
+      const response = await axios.post('http://localhost:3001/get-response', { text: message });
+  
+      if (response.status === 200) {
+        // Set Eepow's response separately
+        const eepowResponse = {
+          message: {
+            From: 'Eepow',
+            Data: response.data,
+          },
+        };
+        console.log(response.data)
+        setEepowResponse(eepowResponse);
       } else {
         console.error('Error getting response');
       }
-    } catch (err) {
-      console.error(err.message);
+    } catch (error) {
+      console.error('Error updating message:', error.message);
+  
+      // Handle any additional error scenarios or provide user feedback
+    } finally {
+      // Clear loading state after all operations are completed
+      setLoading(false);
     }
   };
-
+  
+  
   const fetchConversations = async () => {
     try {
       if (currentUser) {
@@ -111,7 +127,7 @@ const ChatPage = () => {
         fetchConversations={fetchConversations}
       />
       <div className="flex flex-col w-full">
-        <Conversation activeConversation={activeConversation} newMessage={newMessage} isLoading={loading} />
+        <Conversation activeConversation={activeConversation} newMessage={newMessage} eepowResponse={eepowResponse} isLoading={loading} />
         <ChatInput updateMessage={updateMessage} />
       </div>
     </div>

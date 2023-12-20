@@ -49,23 +49,40 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick ,fetch
       <span className="font-head font-bold text-base mx-3 pt-2">Active chat</span>
       {/* Active Conversations */}
       <div className="flex flex-grow  scroll-auto overflow-y-auto flex-col flex-grow mb-2 border-t-2">
-        <div className="flex flex-col space-y-1 mt-4 mr-2">
+        <div className="flex flex-col space-y-1 mt-4">
         {conversations.map((conversation) => (
           Boolean(conversation.Hidden)===false ?(
+            <div className={"flex flex-row rounded-lg " + (conversation.id == activeConversation.id ? ("bg-light hover:bg-beige") : ("bg-dark"))}>
             <button
             onClick={() => onConversationClick(conversation.id)}
             key={conversation.id}
             className={
-              "flex flex-row items-center rounded-xl p-2 " +
-            (conversation.id == activeConversation.id ? ("bg-light") : ("bg-dark"))
-          }
-          >
+              "flex flex-row grow items-center rounded-l-lg p-2 "
+            }
+            >
             <div className="flex items-center justify-center h-8 w-8 bg-beige border-2 border-dark rounded-full">
               {conversation.Tittle?.charAt(0)}
             </div>
             <div className="ml-2 text-sm font-semibold">{conversation.Tittle}</div>
+            
           </button>
+          <div className="rounded-lg p-2 justify-end hover:bg-light" >
+          {
+            conversation.id == activeConversation.id ? (
+                <button
+                // onClick={() => handleDeleteConversation(conversation.id)}
+                key={conversation.id}
+                className=" text-sm p-2"
+                >
+                          
+                <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 448 512"> <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/></svg>
+                </button>
+          ):null
+        }
+        </div>
+        </div>
         ):(null)
+        
         ))}
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, {useState, useEffect, createRef } from "react";
 import Message from "./Message";
 import axios from "axios";
 import { useRef } from "react"
-const Conversation = ({ activeConversation,newMessage,isLoading }) => {
+const Conversation = ({ activeConversation,newMessage, eepowResponse,isLoading }) => {
   const fetchMessages = async (conversationID) => {
     try {
       const response = await axios.get(`http://localhost:3001/get-messages/${conversationID}`);
@@ -32,7 +32,7 @@ const Conversation = ({ activeConversation,newMessage,isLoading }) => {
     };
 
     fetchMessagesForActiveConversation();
-  }, [activeConversation,newMessage]);
+  }, [activeConversation,newMessage,eepowResponse]);
   const ref = createRef();
   useEffect(() => {
     if(fetchedMessages){
