@@ -121,7 +121,7 @@ app.get('/verify-email', async (req, res) => {
       }
   
       const conversationsRef = db.collection('Conversations');
-      const snapshot = await conversationsRef.where('UserID', '==', userID).get();
+      const snapshot = await conversationsRef.where('UserID', '==', userID).where('Hidden', '==', false).get();
   
       const conversations = [];
       
