@@ -117,7 +117,7 @@ console.log(errors)
                 placeholder={field === 'email' ? 'Email' : 'Password'}
               />
             </div>
-              {errors && errors[field] && <span className="text-red-700 text-xs">{errors[field]}</span>}
+              <span className="text-red-700 text-xs">{errors && errors[field] ? (errors[field]) : (null) }</span>
           </div>
         ))}
             <div className="flex items-center mb-6 -mt-4">
