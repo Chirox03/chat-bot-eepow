@@ -170,9 +170,9 @@ app.post('/add-conversation', async (req, res) => {
 app.post('/update-conversation/:conversationsID', async (req, res) => {
   try {
     const { conversationsID } = req.params;
-    const { Tittle, hidden } = req.body;
-
-    if (!conversationsID || (!Tittle && hidden === undefined)) {
+    const { Tittle, Hidden } = req.body;
+    console.log(req)
+    if (!conversationsID || (Tittle=== undefined && Hidden === undefined)) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
     }
 
@@ -181,8 +181,8 @@ app.post('/update-conversation/:conversationsID', async (req, res) => {
     if (Tittle !== undefined) {
       updateFields.Tittle = Tittle;
     }
-    if (hidden !== undefined) {
-      updateFields.hidden = hidden;
+    if (Hidden !== undefined) {
+      updateFields.Hidden = Hidden;
     }
 
     if (Object.keys(updateFields).length === 0) {
