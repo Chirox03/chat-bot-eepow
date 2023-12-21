@@ -170,16 +170,28 @@ app.post('/add-conversation', async (req, res) => {
 app.post('/update-conversation/:conversationsID', async (req, res) => {
   try {
     const { conversationsID } = req.params;
-    const {Tittle} = req.body;
-    if (!conversationsID|| !Tittle) {
+    const { Tittle, hidden } = req.body;
+
+    if (!conversationsID || (!Tittle && hidden === undefined)) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
     }
 
+    // Create an object to hold the fields you want to update
+    const updateFields = {};
+    if (Tittle !== undefined) {
+      updateFields.Tittle = Tittle;
+    }
+    if (hidden !== undefined) {
+      updateFields.hidden = hidden;
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      // No valid fields to updatef
+      return res.status(400).json({ error: 'No valid fields to update.' });
+    }
+
     // Assuming your conversations are stored in a "Conversations" collection
-    await db.collection('Conversations').doc(conversationsID).set({
-      Tittle : Tittle
-    });
-    // Add the userID to the conversation data
+    await db.collection('Conversations').doc(conversationsID).update(updateFields);
 
     return res.status(200).json({ message: 'Conversation updated successfully.' });
   } catch (error) {
@@ -187,6 +199,7 @@ app.post('/update-conversation/:conversationsID', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error.' });
   }
 });
+
 // Update Messages
 app.post('/get-response',async(req,res)=>{
   try{
