@@ -158,7 +158,8 @@ app.post('/add-conversation', async (req, res) => {
     const newConversationRef = await conversationsRef.add({
       Time: new Date().toISOString(),
       Tittle: Tittle,
-      UserID: userID
+      UserID: userID,
+      Hidden: false
     });
 
     return res.status(200).json({ message: 'Conversation added successfully.', conversationID: newConversationRef.id });

@@ -8,6 +8,11 @@ import SignUpForm from './components/SignUpForm/SignUpForm';
 import './index.css';
 // Required for side-effects
 import { AuthProvider } from './AuthContext';
+import SendEmailReset from './components/ResetPassword/SendEmailReset';
+import RessetSuccess from './components/ResetPassword/RessetSuccess';
+import NotFound from './components/NotFound';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 function App() {
   
   return (
@@ -19,10 +24,24 @@ function App() {
         <Route path="/Chat" element={<ChatPage />} />
         <Route path="/SignUp" element={<SignUpForm />} />
         <Route path="/ChangePass" element={<ChangePass />} />
-        <Route path="*" element={<h1>Not Found</h1>} />
+        <Route path="*" element={<NotFound/>} />
         <Route path="/Login" element={<LoginForm/>} />
+        <Route path="/ResetPassword" element={<SendEmailReset/>} />
+        <Route path="/ResetSuccess" element={<RessetSuccess/>}/>
       </Routes>
     </BrowserRouter>
+    <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+/>
  </AuthProvider>
     </div>
   );

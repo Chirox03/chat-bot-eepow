@@ -54,7 +54,22 @@ const ChatPage = () => {
     }
   }, [newMessage, eepowResponse]);
   
-
+  const addNewChat = async () =>{
+    try{
+      console.log("New char")
+      const response = await axios.post('http://localhost:3001/add-conversation', {
+        userID: currentUser.uid,
+        Tittle: "New chat"
+      })
+      if(response.status==200)
+      {
+        console.log(response.data.conversationID)
+        await fetchConversations();
+      }else console.log(response.error)
+    }catch(err){
+      console.error(err)
+    }
+  }
   const updateMessage = async (message, sender) => {
     try {
       // Send user message
@@ -65,23 +80,33 @@ const ChatPage = () => {
         },
       };
       setNewMessage(userMessage);
-      setLoading(true)
+      const timeout = setTimeout(()=>{setLoading(true)},300)
+      
       // Get response from server
       const response = await axios.post('http://localhost:3001/get-response', { text: message });
-  
+      let eepowResponse = {};
       if (response.status === 200) {
+        
         // Set Eepow's response separately
-        const eepowResponse = {
+        eepowResponse = {
           message: {
             From: 'Eepow',
             Data: response.data,
           },
         };
         console.log(response.data)
-        setEepowResponse(eepowResponse);
+        
       } else {
+        eepowResponse = {
+          message: {
+            From: 'Eepow',
+            Data: 'Network error!!!',
+          },
+        };
         console.error('Error getting response');
       }
+     setEepowResponse(eepowResponse)
+     
     } catch (error) {
       console.error('Error updating message:', error.message);
   
@@ -89,6 +114,7 @@ const ChatPage = () => {
     } finally {
       // Clear loading state after all operations are completed
       setLoading(false);
+      
     }
   };
   
@@ -105,7 +131,7 @@ const ChatPage = () => {
         console.log("fetched conversations",response.data.conversations)
         if (response.data.conversations && response.data.conversations.length > 0) {
           setActiveConversation(response.data.conversations[0]);
-        }
+        }else setActiveConversation(null)
       }
     } catch (error) {
       console.log("Error fetching conversations:", error);
@@ -125,10 +151,12 @@ const ChatPage = () => {
         activeConversation={activeConversation}
         onConversationClick={handleConversationClick}
         fetchConversations={fetchConversations}
+        addNewChat={addNewChat}
+        setActiveConversation={setActiveConversation}
       />
       <div className="flex flex-col w-full">
         <Conversation activeConversation={activeConversation} newMessage={newMessage} eepowResponse={eepowResponse} isLoading={loading} />
-        <ChatInput updateMessage={updateMessage} />
+        <ChatInput updateMessage={updateMessage} activeConversation={activeConversation} addNewChat={addNewChat} />
       </div>
     </div>
   );

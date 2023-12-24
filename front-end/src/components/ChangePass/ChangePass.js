@@ -66,7 +66,10 @@ const ChangePass = () => {
       return
     }
   };
-
+  const handleBack = (e)=>{
+    e.preventDefault();
+    navigate('/Chat')
+  }
   return (
     <div className="LoginForm">
       <div className="flex flex-col bg-light shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-md w-full max-w-md">
@@ -103,7 +106,7 @@ const ChangePass = () => {
               <button
                 type="submit"
                 onClick={handleSubmit}
-                className="flex items-center justify-center focus:outline-none text-white text-sm sm:text-base bg-dark/90 hover:bg-dark rounded py-2 w-full transition duration-150 ease-in"
+                className="flex items-center justify-center focus:outline-none text-white text-sm sm:text-base bg-darker/70 hover:bg-darker/60 rounded py-2 w-full transition duration-150 ease-in"
               >
                 <span className="mr-2 uppercase">Change password</span>
                 <span>
@@ -114,6 +117,11 @@ const ChangePass = () => {
               </button>
             </div>
           </form>
+              <div className="flex justify-center items-center mt-5">
+           <button onClick={(e)=>{handleBack(e)}} className="inline-flex items-center font-bold text-darker/80 hover:text-darker/60 text-sm text-center" type="button">
+            <span >Back</span>
+          </button>
+        </div>
         </div>
       </div>
     </div>

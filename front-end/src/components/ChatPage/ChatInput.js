@@ -1,18 +1,21 @@
 // ChatInput.js
 import React from "react";
 import { useState } from "react";
-const ChatInput = ({updateMessage}) => {
+const ChatInput = ({updateMessage,addNewChat,activeConversation}) => {
   const [message, setMessage] = useState('');
   const handleMesseageChange = (e) => {
     e.preventDefault();
     setMessage(e.target.value)
     console.log(message);
   }
-  const handleSend = () => {
+  const handleSend = async (e)  => {
     const sender = "User";
     console.log("Input ",message);
     if(message === '') return;
     // Use the functional form of setMessage to get the latest state
+    console.log('active',activeConversation)
+    if(!activeConversation)
+      await addNewChat();
     updateMessage(message, sender);
     setMessage('');
   };
@@ -38,7 +41,7 @@ const ChatInput = ({updateMessage}) => {
         </div>
       </div>
       <div className="ml-4">
-        <button onClick={handleSend}
+        <button onClick={(e) =>{handleSend(e)}}
          className="flex items-center justify-center bg-darker/80 hover:bg-darker/60 rounded-xl text-white px-4 py-2 flex-shrink-0"> 
           <span>Send</span>
           <span className="ml-2">

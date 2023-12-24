@@ -1,47 +1,95 @@
 import React from "react";
 import Menu from "./Menu";
 import { Button } from "@material-tailwind/react";
-import { useState } from "react";
+import { useState ,useRef} from "react";
 import { useEffect } from "react";
 import axios from "axios";
 import useAuth from "../../../AuthContext";
 import Conversation from "../Conversation/Conversation";
-const Sidebar = ({ conversations, activeConversation, onConversationClick ,fetchConversations}) => {
+
+const Sidebar = ({ conversations,setActiveConversation, activeConversation, onConversationClick ,fetchConversations,addNewChat}) => {
+  const [editMode, setEditMode] = useState(false);
   // useEffect hook to monitor changes in activeConversation
   useEffect(() => {
     // Perform any necessary actions based on the activeConversation change
   }, [activeConversation]);
   // onConversationClick(activeConversation.id);
   const { currentUser, login, logout } = useAuth();
-  const handleNewChat = (e) =>{
+  const [tittle, setTittle] = useState()
+  const inputRef = useRef(null);
+  const handleNewChat = async (e) =>{
     e.preventDefault();
-    axios.post('http://localhost:3001/add-conversation', {
-      userID: currentUser.uid,
-      Tittle: "New chat"
-    })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-    fetchConversations();
+    await addNewChat();
   }
-  const handleDeleteConversation = (conversationID) =>{
+  useEffect(()=>{
+    console.log('Tittle',tittle)
+    setTittle(activeConversation?.Tittle)
+  },[activeConversation])
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter" && editMode) {
+      
+      event.preventDefault(); // Prevents the default behavior of the Enter key (e.g., form submission)
+      handleUpdateConversation(); // Call the function to update the conversation
+    }
+  };
+
+  const handleUpdateConversation = async () => {
+    try {
+      const memo = activeConversation;
+      const response = await axios.post(`http://localhost:3001/update-conversation/${activeConversation?.id}`, {
+        Tittle: tittle,
+      });
+      console.log("res", response);
+      if (response.status === 200) {
+        setEditMode(false);
+        await fetchConversations();
+        setTittle("");
+        setActiveConversation(memo);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  useEffect(() => {
+    const handleClickOutside =async (event) => {
+      console.log(inputRef.current)
+      if (inputRef.current && !inputRef.current.contains(event.target)) {
+        handleUpdateConversation();
+      }
+    };
+    const handleKeyPress = (event) => {
+      if (event.key === "Enter" && editMode) {
+        event.preventDefault(); // Prevents the default behavior of the Enter key (e.g., form submission)
+        handleUpdateConversation(); // Call the function to update the conversation
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [editMode, tittle, activeConversation, fetchConversations]);
+  const handleDeleteConversation = async (conversationID) =>{
     
-    axios.post(`http://localhost:3001/update-conversation/${conversationID}`, {
-      Hidden: true
-    })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-      return
-    });
-    fetchConversations();
+    try{
+      const response = await axios.post(`http://localhost:3001/update-conversation/${conversationID}`, {
+        Hidden: true
+      })  
+      if(response.status == 200)
+        await fetchConversations();
+      else console.log(response.error)
+    }catch(err){
+     console.error(err)
+    };
+    
    
   }
+  const handleInputClick = (e) => {
+    // Prevent propagation of the click event to avoid closing the edit mode
+    e.stopPropagation();
+  };
   return (
     <div className="SideBar flex flex-col relative pt-2 md:w-64">
       <div className="flex flex-row items-center justify-center h-12 mar pt-6">
@@ -66,37 +114,59 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick ,fetch
       <div className="flex flex-grow  scroll-auto overflow-y-auto flex-col flex-grow mb-2 border-t-2">
         <div className="flex flex-col space-y-1 mt-4">
         {conversations.map((conversation) => (
-          Boolean(conversation.Hidden)===false ?(
-            <div className={"flex flex-row rounded-lg " + (conversation.id == activeConversation.id ? ("bg-light hover:bg-beige") : ("bg-dark"))}>
+            <div key={conversation.id} className={"flex flex-row rounded-lg  " + (conversation.id == activeConversation?.id ? ("bg-light hover:bg-beige") : ("bg-dark hover:bg-beige/20"))}>
             <button
+            onDoubleClick={() => setEditMode(true)}
             onClick={() => onConversationClick(conversation.id)}
-            key={conversation.id}
+            key={`button-${conversation.id}`}
             className={
               "flex flex-row grow items-center rounded-l-lg p-2 "
             }
             >
-            <div className="flex items-center justify-center h-8 w-8 bg-beige border-2 border-dark rounded-full">
+            <div className="flex items-center font-bold justify-center h-8 w-8 bg-beige border-2 border-dark rounded-full">
               {conversation.Tittle?.charAt(0)}
             </div>
-            <div className="ml-2 text-sm font-semibold">{conversation.Tittle}</div>
-            
+            {editMode && conversation.id == activeConversation.id ?(
+              <input
+              key={`input-${conversation.id}`}
+              onClick={handleInputClick}
+              ref={inputRef}
+              className=" ml-1 pl-2 block w-auto rounded-md"
+              type="text"
+              value={tittle}
+              onChange={(e) => setTittle((prevTittle) => e.target.value)}
+              
+              //  onBlur={() => setEditMode(false)}
+              autoFocus
+            />
+            ):(
+              <div className="text-sm pl-2">
+                {
+                conversation.Tittle
+                } 
+                  
+                </div>
+                 )
+                }
           </button>
-          <div className="rounded-lg p-2 justify-end hover:bg-light" >
-          {
-            conversation.id == activeConversation.id ? (
+              {!editMode && conversation.id == activeConversation.id ? (
+                <div className="py-3 px-1">
+                <button
+                onClick={()=>setEditMode(!editMode)}
+                key={`edit-${conversation.id}`}
+                className=" text-sm p-1 hover:bg-light">
+               <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path fill="#1f2023" d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z"/></svg>
+                </button>
                 <button
                 onClick={()=>handleDeleteConversation(conversation.id)}
-                key={conversation.id}
-                className=" text-sm p-2"
+                key={`del-${conversation.id}`}
+                className=" text-sm p-1 hover:bg-light"
                 >        
                 <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 448 512"> <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/></svg>
                 </button>
-          ):null
-        }
+                </div>
+          ):null}
         </div>
-        </div>
-        ):(null)
-        
         ))}
         </div>
       </div>
@@ -105,6 +175,7 @@ const Sidebar = ({ conversations, activeConversation, onConversationClick ,fetch
      
       <div className="flex-grow absolute bottom-0 left-0 w-full">
       <Menu />
+      
       </div>
     </div>
   );

@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../AuthContext";
 import { useState,useEffect } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const LoginForm = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -21,8 +23,9 @@ const LoginForm = () => {
         break;
     }
   };
-  const validateField = (field, errorMessage) => {
-    if (!field) {
+  const validateField = (value,field,errorMessage) => {
+    console.log(value ,[field])
+    if (!value) {
       setErrors((prevErrors) => ({ ...prevErrors, [field]: errorMessage }));
       return false;
     }
@@ -40,12 +43,19 @@ console.log(errors)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateField('email', 'Email cannot be empty') || !validateField('password', 'Password cannot be empty')) {
+    if (!validateField(email,'email' ,'Email cannot be empty') || !validateField(password, 'password','Password cannot be empty')) {
       return;
     }
 
     try {
-      const response = await login(email, password);
+      const response = await toast.promise(
+        login(email, password),
+        {
+          pending: 'Loggin In...',
+          success: `Welcome ${email}`,
+          error: 'Log in failed 🤯'
+        }
+        )
       if (response) {
         console.log("meomeo",response)
         setPassword('');
@@ -60,8 +70,16 @@ console.log(errors)
   };
   const handleLoginGoogle = async (e) => {
     try{
+      console.log('google')
       e.preventDefault();
-      await googleSignIn();
+      const response = await toast.promise(
+      googleSignIn(),
+      {
+        pending: 'Logging in...',
+        success: `Welcome ${email}`,
+        error: 'Log in failed 🤯'
+      }
+      )
       navigate('/Chat')
     }catch(error){
       alert(error.message)
@@ -71,14 +89,19 @@ console.log(errors)
     e.preventDefault();
     navigate('/SignUp')
   }
+  const handleResetPassword = (e) =>{
+    console.log('click')
+    e.preventDefault();
+    navigate('/ResetPassword')
+  }
   return (
     <div className="LoginForm">
       
       <div className="flex flex-col bg-light  shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-md w-full max-w-md">
         <div className="font-medium self-center text-xl sm:text-2xl uppercase text-gray-800">Login To Eepow</div>
         <button className="But" onClick={handleLoginGoogle}>
-          <span className="absolute left-0 top-0 flex items-center justify-center h-full w-10 text-blue-500">
-            <i className="fab fa-facebook-f"></i>
+        <span className="absolute ml-10 top-0 flex items-center justify-center h-full w-10 text-blue-500">
+          <svg xmlns="http://www.w3.org/2000/svg" height="16" width="15.25" viewBox="0 0 488 512"><path fill="white" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"/></svg>
           </span>
           <span>Login with Google</span>
         </button>
@@ -115,20 +138,21 @@ console.log(errors)
                 name={field}
                 className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-beige w-full py-2 focus:outline-none focus:border-dark"
                 placeholder={field === 'email' ? 'Email' : 'Password'}
+                value={field === 'email' ? email :password }
               />
             </div>
-              <span className="text-red-700 text-xs">{errors && errors[field] ? (errors[field]) : (null) }</span>
+              <span className="text-red-700 h-3 text-xs">{errors && errors[field] ? (errors[field]) : (null) }</span>
           </div>
         ))}
             <div className="flex items-center mb-6 -mt-4">
               <div className="flex ml-auto">
-                <button className="inline-flex text-xs sm:text-sm text-darker/80 hover:text-darker/60" type="button">
+                <button onClick={handleResetPassword} className="inline-flex text-xs sm:text-sm text-darker/80 hover:text-darker/60" type="button">
                   Forgot Your Password?
                 </button>
               </div>
             </div>
             <div className="flex w-full">
-              <button type="submit" onClick={handleSubmit} className="flex items-center justify-center text-white font-bold py-2 px-4 border-b-4 border-darker-700 hover:border-light-500 rounded bg-darker/60 hover:bg-darker/50 rounded py-2 w-full transition duration-150 ease-in">
+              <button type="submit" onClick={handleSubmit} className="flex items-center justify-center text-white font-bold py-2 px-4 border-darker-700 hover:border-light-500 rounded bg-darker/60 hover:bg-darker/50 py-2 w-full transition duration-150 ease-in" >
                 <span className="mr-2 uppercase">Login</span>
                 <span>
                   <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
