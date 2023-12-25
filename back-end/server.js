@@ -210,6 +210,14 @@ app.post('/get-response',async(req,res)=>{
     }
     console.log(text)
     const response = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/predict', { text: text });
+    if(response.length <=20){
+      try{
+        await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/refresh');
+      }catch(err){
+        console.log(err)
+      }
+      
+    }
     console.log(response)
     return res.status(200).json(response.data)
   }catch(error){
