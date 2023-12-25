@@ -20,6 +20,12 @@ const Sidebar = ({ conversations,setActiveConversation, activeConversation, onCo
   const handleNewChat = async (e) =>{
     e.preventDefault();
     await addNewChat();
+    try{
+      const res = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/refresh')
+    }catch(err)
+    {
+      console.log(err)
+    }
   }
   useEffect(()=>{
     console.log('Tittle',tittle)
@@ -39,7 +45,7 @@ const Sidebar = ({ conversations,setActiveConversation, activeConversation, onCo
       const response = await axios.post(`http://localhost:3001/update-conversation/${activeConversation?.id}`, {
         Tittle: tittle,
       });
-      console.log("res", response);
+      // console.log("res", response);
       if (response.status === 200) {
         setEditMode(false);
         await fetchConversations();
@@ -52,7 +58,6 @@ const Sidebar = ({ conversations,setActiveConversation, activeConversation, onCo
   };
   useEffect(() => {
     const handleClickOutside =async (event) => {
-      console.log(inputRef.current)
       if (inputRef.current && !inputRef.current.contains(event.target)) {
         handleUpdateConversation();
       }
