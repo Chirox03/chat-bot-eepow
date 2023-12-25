@@ -1,6 +1,7 @@
 const express = require('express')  
 const cors = require('cors')    
 const bodyParser = require('body-parser')
+const axios = require('axios');
 
 var admin = require("firebase-admin");
 
@@ -38,7 +39,20 @@ usersRef.onSnapshot((snapshot) => {
     }
   });
 });
+app.post('/add-user', async (req, res) => {
+  try {
+    const { UserID} = req.body;
+    // Add user to Firestore with the provided user ID as document ID
+    await db.collection('Users').doc(String(UserID)).set({
+      Username : "Pikachu"
+    });
 
+    res.json({ success: true, message: 'User added successfully.' });
+  } catch (error) {
+    console.error('Error adding user:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 app.get('/verify-email', async (req, res) => {
     try {
       const { email } = req.query; // Use req.query to get query parameters
@@ -79,21 +93,45 @@ app.get('/verify-email', async (req, res) => {
       return res.status(500).json({ error: 'Internal server error.' });
     }
   });
+  app.get('/get-user/:userID', async (req, res) =>{
+    try{
+      const {userID} = req.params;
+      if(!userID){
+        return res.status(400).json({ error: 'UserID is required in the request parameters.' });
+      }
+      const UserDoc =await db.collection('Users').doc(userID).get();
+      
+      if(!UserDoc.exists){
+        return res.status(404).json({ error: 'User not found.' });
+      }
+      const userData = UserDoc.data();
+      console.log(userData)
+     res.json({ success: true, user: userData });
+      
+    }catch(error){
+      console.error('Error getting user:', error.message);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
   app.get('/get-conversations/:userID', async (req, res) => {
     try {
-      console.log("hello")
       const { userID } = req.params;
       if (!userID) {
         return res.status(400).json({ error: 'UserID is required in the request parameters.' });
       }
   
       const conversationsRef = db.collection('Conversations');
-      const snapshot = await conversationsRef.where('UserID', '==', userID).get();
+      const snapshot = await conversationsRef.where('UserID', '==', userID).where('Hidden', '==', false).get();
   
       const conversations = [];
+      
       snapshot.forEach((doc) => {
-        conversations.push({'id':doc.id, 'Tittle':doc.data().Tittle});
-
+        console.log(doc.data())
+        conversations.push({
+          Tittle: doc.data().Tittle,
+          Hidden: Boolean(doc.data().Hidden),
+          id: doc.id 
+        });
       });
       return res.status(200).json({ conversations });
     } catch (error) {
@@ -104,12 +142,11 @@ app.get('/verify-email', async (req, res) => {
   });
   
   // Update Conversation
-app.post('/update-conversation/:userID', async (req, res) => {
+app.post('/add-conversation', async (req, res) => {
   try {
-    const { userID } = req.params;
-    const { conversationData } = req.body;
-
-    if (!userID || !conversationData) {
+    const { userID } = req.body;
+    const {Tittle} = req.body;
+    if (!userID|| !Tittle) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
     }
 
@@ -117,12 +154,47 @@ app.post('/update-conversation/:userID', async (req, res) => {
     const conversationsRef = db.collection('Conversations');
 
     // Add the userID to the conversation data
-    conversationData.UserID = userID;
+   
+    const newConversationRef = await conversationsRef.add({
+      Time: new Date().toISOString(),
+      Tittle: Tittle,
+      UserID: userID,
+      Hidden: false
+    });
 
-    // Add the conversation to Firestore
-    const newConversationRef = await conversationsRef.add(conversationData);
+    return res.status(200).json({ message: 'Conversation added successfully.', conversationID: newConversationRef.id });
+  } catch (error) {
+    console.error('Error adding conversation:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+app.post('/update-conversation/:conversationsID', async (req, res) => {
+  try {
+    const { conversationsID } = req.params;
+    const { Tittle, Hidden } = req.body;
+    console.log(req)
+    if (!conversationsID || (Tittle=== undefined && Hidden === undefined)) {
+      return res.status(400).json({ error: 'Invalid request parameters or body.' });
+    }
 
-    return res.status(200).json({ message: 'Conversation updated successfully.', conversationID: newConversationRef.id });
+    // Create an object to hold the fields you want to update
+    const updateFields = {};
+    if (Tittle !== undefined) {
+      updateFields.Tittle = Tittle;
+    }
+    if (Hidden !== undefined) {
+      updateFields.Hidden = Hidden;
+    }
+
+    if (Object.keys(updateFields).length === 0) {
+      // No valid fields to updatef
+      return res.status(400).json({ error: 'No valid fields to update.' });
+    }
+
+    // Assuming your conversations are stored in a "Conversations" collection
+    await db.collection('Conversations').doc(conversationsID).update(updateFields);
+
+    return res.status(200).json({ message: 'Conversation updated successfully.' });
   } catch (error) {
     console.error('Error updating conversation:', error);
     return res.status(500).json({ error: 'Internal server error.' });
@@ -130,28 +202,40 @@ app.post('/update-conversation/:userID', async (req, res) => {
 });
 
 // Update Messages
+app.post('/get-response',async(req,res)=>{
+  try{
+    const {text} = req.body;
+    if(text==''){
+      return res.status(400).json({error:"Text is null"});
+    }
+    console.log(text)
+    const response = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/predict', { text: text });
+    console.log(response)
+    return res.status(200).json(response.data)
+  }catch(error){
+    console.error('Error get predict:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
 app.post('/update-messages/:conversationID', async (req, res) => {
+  console.log("new message",req.body)
   try {
     const { conversationID } = req.params;
-    const { messages } = req.body;
-
-    if (!conversationID || !messages || !Array.isArray(messages)) {
+    const { message } = req.body;
+    if (!conversationID || !message) {
       return res.status(400).json({ error: 'Invalid request parameters or body.' });
     }
-
     // Assuming your messages are stored in a "Messages" subcollection within each conversation document
-    const messagesRef = db.collection('Conversations');
-    doc(conversationID).collection('Messages');
+    const messageRef = db.collection('Messages')
 
     // Add messages to the conversation
-    for (const message of messages) {
-      // Assuming the message object has "Data", "From", and "Time" properties
-      await messagesRef.add({
-        Data: message.Data,
-        From: message.From,
-        Time: message.Time || new Date().toISOString(), // Use current time if not provided
-      });
-    }
+
+    await messageRef.add({
+      Data: message.Data,
+      From: message.From,
+      ConversationID: conversationID,
+      Time: message.Time || new Date().toISOString(), // Use current time if not provided
+    });
 
     return res.status(200).json({ message: 'Messages updated successfully.' });
   } catch (error) {
@@ -159,6 +243,7 @@ app.post('/update-messages/:conversationID', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error.' });
   }
 });
+
 app.get('/get-messages/:conversationID', async (req, res) => {
   try {
     const { conversationID } = req.params;
@@ -166,12 +251,11 @@ app.get('/get-messages/:conversationID', async (req, res) => {
     if (!conversationID) {
       return res.status(400).json({ error: 'ConversationID is required in the request parameters.' });
     }
-    console.log("conid",conversationID)
     // Assuming your messages are stored in a "Messages" subcollection within each conversation document
     const messagesRef = db.collection('Messages');
 
     // Fetch messages for the specified conversationID
-    const snapshot = await messagesRef.where('ConversationID', '==', conversationID).get();
+    const snapshot = await messagesRef.where('ConversationID', '==', conversationID).orderBy('Time', 'asc').get();
   
     const Messages = [];
     

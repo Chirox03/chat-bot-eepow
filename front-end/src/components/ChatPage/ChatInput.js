@@ -1,15 +1,24 @@
 // ChatInput.js
 import React from "react";
 import { useState } from "react";
-const ChatInput = ({updateMessage}) => {
+const ChatInput = ({updateMessage,addNewChat,activeConversation}) => {
   const [message, setMessage] = useState('');
   const handleMesseageChange = (e) => {
-      setMessage(e.target.value)
+    e.preventDefault();
+    setMessage(e.target.value)
+    console.log(message);
   }
-  const handleSend = () => {
-    const sender="User"
-    updateMessage(message,sender);
-  }
+  const handleSend = async (e)  => {
+    const sender = "User";
+    console.log("Input ",message);
+    if(message === '') return;
+    // Use the functional form of setMessage to get the latest state
+    console.log('active',activeConversation)
+    if(!activeConversation)
+      await addNewChat();
+    updateMessage(message, sender);
+    setMessage('');
+  };
   return (
     <div className="ChatInput pb-4">
       <div>
@@ -18,15 +27,22 @@ const ChatInput = ({updateMessage}) => {
         <div className="relative w-full">
           <input
             type="text"
-            className="flex w-full border rounded-xl focus:outline-none focus:border-darker focus:ring-dark pl-4 h-10"
+            className="flex w-full border rounded-xl hover:border-darker/60 focus:outline-none focus:border-darker focus:ring-dark pl-4 h-10"
             placeholder="Type your message..."
+            value={message}
             onChange={handleMesseageChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSend();
+              }
+            }}
             required
           />
         </div>
       </div>
       <div className="ml-4">
-        <button onClick={handleSend} className="flex items-center justify-center bg-darker/70 hover:bg-darker/60 rounded-xl text-white px-4 py-2 flex-shrink-0"> 
+        <button onClick={(e) =>{handleSend(e)}}
+         className="flex items-center justify-center bg-darker/80 hover:bg-darker/60 rounded-xl text-white px-4 py-2 flex-shrink-0"> 
           <span>Send</span>
           <span className="ml-2">
             <svg

@@ -7,6 +7,7 @@ const Menu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef();
   const { currentUser, login, logout } = useAuth();
+  console.log(currentUser)
   const handleSignOut = async(e) => {
     e.preventDefault();
     navigate('/');
@@ -16,7 +17,9 @@ const Menu = () => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-
+  useEffect(()=>{
+   console.log(currentUser)
+  },[currentUser])
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -35,9 +38,9 @@ const Menu = () => {
     <div ref={menuRef} className="w-full relative block text-left border border-green">
       <button
         onClick={toggleDropdown}
-        className={`w-full bg-${!isOpen ? "dark" : "darker"} text-white font-bold py-2 px-4 rounded`}
+        className={`w-full bg-${!isOpen ? "dark" : "darker/60"} hover:bg-darker/50 text-white text-sm font-bold py-3 px-4 rounded`}
       >
-        {currentUser.displayName}
+        {currentUser.displayName?(currentUser.displayName):(currentUser.email)}
       </button>
       {isOpen && (
         <div className="absolute bottom-12 left-0 border shadow-lg z-10 w-full border-green">
