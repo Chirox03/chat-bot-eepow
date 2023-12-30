@@ -115,7 +115,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.log(error)
       console.error('Email login failed:', error.message);
-      if(error.message=== 'Firebase: Error (auth/invalid-login-credentials).')
+      if(error.message=== 'Firebase: Error (auth/invalid-login-credentials).' ||error.message=== 'Firebase: Error (auth/wrong-password).' )
        return {account: 'Inccorect email or password'};
     }
   };
