@@ -57,9 +57,8 @@ const SignUpForm = () => {
       return;
     }
     try{
-
       let err = await signup(email,password);
-      if(err !=null)
+      if(err?.error !=null)
       {
         e.preventDefault();
         console.log(err)
