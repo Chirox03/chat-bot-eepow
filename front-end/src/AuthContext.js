@@ -8,8 +8,12 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState({});
+  const [method,setMethod] = useState({})
   const [loading,setLoading] = useState(true)
   const [logoutTimer, setLogoutTimer] = useState(null);
+  useEffect(()=>{
+    console.log('method',method)
+  },[method])
   useEffect(() => {
     setLoading(true);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -46,12 +50,13 @@ export function AuthProvider({ children }) {
       'Username': result.user.email,
       'Type': 'email'
     });
-   
+      setMethod('password')
       return {error : null};
     // Additional steps, such as setting the user's display name or sending a verification email, can be added here.
     } catch (error) {
     // Handle errors that might occur during signup
-    if(error.code === 'auth/email-already-in-use'){
+    console.log("mess",error.message)
+    if(error.message === 'Firebase: Error (auth/email-already-in-use).'){
       error.account = 'Email is already axist';
       return error;
     }
@@ -71,18 +76,16 @@ export function AuthProvider({ children }) {
         'Type':'google'
       });
       
-      console.log(response)
       if(response.statusText != 'Ok')
       {
+        setMethod('google')
         return {'error':null}
       }else{
         console.error('Sign up with google failed',response.statusText);
         return {'error':'Sign up failed' +response.status + response.statusText}
-       // alert('Sign up failed');
       }
     }  catch (error) {
       console.error('Google sign up failed:', error.message);
-     // alert('Login failed');
     }
   }
   const googleSignIn = async () => {
@@ -91,11 +94,9 @@ export function AuthProvider({ children }) {
     try {
       await setPersistence(authInstance,browserSessionPersistence);
       const result = await signInWithPopup(authInstance, provider);
-      console.log('res',{result})
-      
+      setMethod('google')
     }  catch (error) {
       console.error('Google login failed:', error.message);
-      // alert('Login failed');
     }
   };
   const login = async (email, password) => {
@@ -110,13 +111,14 @@ export function AuthProvider({ children }) {
       const response = await axios.get(`http://localhost:3001/get-user/${result.user.uid}`);
       if(response.status==200)
       {
+        setMethod('password')
         return null;
       }else console.log(response.data)
     } catch (error) {
-      console.log(error)
       console.error('Email login failed:', error.message);
-      if(error.message=== 'Firebase: Error (auth/invalid-login-credentials).')
+      if(error.message=== 'Firebase: Error (auth/invalid-login-credentials).' ||error.message=== 'Firebase: Error (auth/wrong-password).' )
        return {account: 'Inccorect email or password'};
+      return {account: 'Account not found'}
     }
   };
   
@@ -124,6 +126,7 @@ export function AuthProvider({ children }) {
     try {
       SignOutUser();
       setCurrentUser({});
+      setMethod(null);
       localStorage.removeItem('currentUser');
     } catch (error) {
       console.error('Logout failed:', error.message);
@@ -135,9 +138,6 @@ export function AuthProvider({ children }) {
     try{
       try{
         const signInMethods = await fetchSignInMethodsForEmail(authInstance, email);
-  
-        console.log(email)
-        console.log(signInMethods)
         if (signInMethods.length === 0) {
           console.log('Email does not exist');
           return false;
@@ -158,8 +158,6 @@ export function AuthProvider({ children }) {
   }
   const changePassword = async (oldPassword, newPassword) =>{
     const authInstance = getAuth();
-    // Re-authenticate the user with their current password
-    console.log(oldPassword)
     const  credentials = EmailAuthProvider.credential(currentUser.email, oldPassword);
     try {
       const res = await reauthenticateWithCredential(authInstance.currentUser, credentials);
@@ -178,7 +176,8 @@ export function AuthProvider({ children }) {
     signup,
     googleSignUp,
     changePassword,
-    resetPassword
+    resetPassword,
+    method
   };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;

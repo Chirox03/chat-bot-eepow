@@ -48,20 +48,14 @@ console.log(errors)
     }
 
     try {
-      const response = await toast.promise(
-        login(email, password),
-        {
-          pending: 'Loggin In...',
-          success: `Welcome ${email}`,
-          error: 'Log in failed 🤯'
-        }
-        )
+      const response = await login(email, password)
       if (response) {
         console.log("meomeo",response)
         setPassword('');
         setErrors(response);
         return;
       }
+      toast(`Welcome back ${email} !`)
       navigate('/Chat');
     } catch (error) {
       setPassword('');

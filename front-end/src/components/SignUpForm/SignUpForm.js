@@ -39,11 +39,14 @@ const SignUpForm = () => {
   const handleLogin = (e)=>{
     navigate('/Login')
   }
+
   const handleSignUp = async (e)=>{
     e.preventDefault();
-    console.log("e",email, password,repassword)
+    setErrors(null)
     if (!validateField('email', email,'Email cannot be empty') || !validateField('password',password, 'Password cannot be empty') || !validateField('repassword',repassword,'Confirm password cannot be empty')) {
       console.log('Invalid value')
+      setPassword('')
+      setRepassword('')
       return;
     }
     if(password != repassword){
@@ -54,27 +57,18 @@ const SignUpForm = () => {
       return;
     }
     try{
-      
       let err = await signup(email,password);
-      await toast.promise(
-        Promise.resolve(err), // Assuming signup returns a Promise
-        {
-          pending: 'Signing up...',
-          success: 'Signup successful!',
-          error: (error) => `Signup failed: ${error.error}`,
-        }
-      );
-      console.log("err",err)
-      if(err.error !=null)
+      if(err?.error !=null)
       {
         e.preventDefault();
         console.log(err)
       setErrors(err);
       setPassword('')
       setRepassword('')
+      if(err.account!=null) setEmail('')
       return;
       }
-    alert('Sign up successfull');
+    toast('Sign up successfully!');
     navigate('/Chat')
   }catch(err){
     console.error(err)
@@ -96,9 +90,10 @@ const SignUpForm = () => {
           <div className="absolute left-0 top-0 flex justify-start w-full -mt-2">
             <span className="bg-light px-4 text-xs text-gray-500 uppercase">Or Sign up With Email</span>
           </div>
-          <span>{errors && errors.account ? errors.account : null}</span>
         </div>
-        <div className="mt-8">
+          {errors && errors.account ? (
+                  <label className="mt-2 text-xs sm:text-sm tracking-wide text-red-400 text-left">{errors.account}</label>):(null)}
+        <div className="mt-2">
           <form action="#">
             <div className="flex flex-col mb-6">
               <label htmlFor="username" className="mb-1 text-xs sm:text-sm tracking-wide text-gray-600 text-left">Email:</label>
@@ -111,7 +106,7 @@ const SignUpForm = () => {
                   <input value={email} onChange={(e) => setEmail(e.target.value)} id="username" name="username" className="Input " placeholder="Email" />
                   </div>
                 {errors && errors.email ? (
-                  <label className="mb-1 text-xs sm:text-sm tracking-wide text-red-400 text-left">Invalid email!</label>):(null)}
+                  <label className="text-xs sm:text-sm tracking-wide text-red-400 text-left">Invalid email!</label>):(null)}
             </div>
 
             <div className="flex flex-col mb-6">
@@ -128,7 +123,7 @@ const SignUpForm = () => {
                 
                </div>
                {errors && errors.password ? (
-                  <label className="mb-1 text-xs sm:text-sm tracking-wide text-red-400 text-left">Password is too short</label>):(null)}
+                  <label className=" text-xs sm:text-sm tracking-wide text-red-400 text-left">Password is too short</label>):(null)}
             </div>
 
             <div className="flex flex-col mb-6">
@@ -147,8 +142,7 @@ const SignUpForm = () => {
               {errors && errors.repassword ? (
                   <label className="mb-1 text-xs sm:text-sm tracking-wide text-red-400 text-left">Password does not match!</label>):(null)}
             </div>
-            {errors && errors.account ? (
-                  <label className="mb-1 text-xs sm:text-sm tracking-wide text-red-400 text-left">{errors.account}</label>):(null)}
+           
             <div className="flex w-full">
               <button onClick={handleSignUp} type="submit" className="flex bg-darker/60 hover:bg-darker/50 items-center justify-center focus:outline-none text-beige text-sm sm:text-base bg-dark/80 hover:bg-dark rounded py-2 w-full transition duration-150 ease-in">
                 <span className="mr-2 font-bold uppercase">Sign up</span>

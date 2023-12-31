@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../AuthContext";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const ChangePass = () => {
   const navigate = useNavigate();
   const { changePassword } = useAuth();
@@ -60,6 +61,7 @@ const ChangePass = () => {
       setOldPassword('');
       setConfirmPassword('');
       setNewPassword('');
+      toast('Change password succesfully!')
       navigate("/Chat");
     }else{
       alert(res.error)
