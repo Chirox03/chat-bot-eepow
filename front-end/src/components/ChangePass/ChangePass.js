@@ -6,13 +6,21 @@ import 'react-toastify/dist/ReactToastify.css';
 const ChangePass = () => {
   const navigate = useNavigate();
   const { changePassword } = useAuth();
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState(null);
+  const [newPassword, setNewPassword] = useState(null);
   const [errors, setErrors] = useState({});
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(null);
 
   const handleInputChange = (key, value) => {
-    setErrors((prevErrors) => ({ ...prevErrors, [key]: null }));
+    console.log(key,value)
+    if(value){
+      setErrors((prevErrors) => ({
+        oldPassword: null,
+        newPassword: null,
+        confirmPassword: null,
+        account: null
+      }));
+    } 
     switch (key) {
       case 'oldPassword':
         setOldPassword(value);
@@ -31,40 +39,43 @@ const ChangePass = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const validateField = (field, errorMessage) => {
-      if (!field) {
+    const validateField = (field,value, errorMessage) => {
+      console.log('value',value)
+      if (!value) {
         setErrors((prevErrors) => ({ ...prevErrors, [field]: errorMessage }));
         return false;
       }
       return true;
     };
 
-    if (!validateField('oldPassword', 'This field cannot be empty') ||
-        !validateField('newPassword', 'This field cannot be empty') ||
-        !validateField('confirmPassword', 'This field cannot be empty')) {
+    if (!validateField('oldPassword',oldPassword, 'This field cannot be empty') ||
+        !validateField('newPassword', newPassword,'This field cannot be empty') ||
+        !validateField('confirmPassword', confirmPassword,'This field cannot be empty')) {
       setConfirmPassword('')
       setOldPassword('')
       setNewPassword('')
       return;
     }
-
+    console.log(newPassword,confirmPassword)
     if (newPassword !== confirmPassword) {
-      setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: 'Password does not match' }));
       setConfirmPassword('');
+      setNewPassword('')
+      setOldPassword('')
+      setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: 'Password does not match' }));
       return;
     }
     console.log(oldPassword)
     const res = await changePassword(oldPassword, newPassword);
-
-    if (!res.error) {
+    console.log(res)
+    if (!res?.error) {
       setErrors((prevErrors) => ({ ...prevErrors, ReAuth: 'Password is not correct' }));
-      setOldPassword('');
-      setConfirmPassword('');
-      setNewPassword('');
+      setOldPassword(null);
+      setConfirmPassword(null);
+      setNewPassword(null);
       toast('Change password succesfully!')
       navigate("/Chat");
     }else{
-      alert(res.error)
+      setErrors((prevErrors) => ({ ...prevErrors, ReAuth: res.error }));
       return
     }
   };
@@ -76,8 +87,8 @@ const ChangePass = () => {
     <div className="LoginForm">
       <div className="flex flex-col bg-light shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-md w-full max-w-md">
         <div className="font-medium self-center text-xl sm:text-2xl uppercase text-gray-800">Change password</div>
-
-        <div className="mt-10">
+        <div className="mt-8">
+        <div className='text-red-700 text-xs'>{errors?.ReAuth}</div>
           <form>
             {['oldPassword', 'newPassword', 'confirmPassword'].map((field) => (
               <div key={field} className="flex flex-col mb-6">
@@ -97,11 +108,12 @@ const ChangePass = () => {
                     id={field}
                     type="password"
                     name={field}
+                    value={field==='oldPassword' ?  oldPassword : (field==='newPassword' ? newPassword : confirmPassword)}
                     className="text-sm sm:text-base placeholder-gray-500 pl-10 pr-4 rounded-lg border border-beige w-full py-2 focus:outline-none focus:border-dark"
                     placeholder={field === 'oldPassword' ? 'Password' : field === 'newPassword' ? 'New password' : 'Confirm new password'}
                   />
-                  {errors && errors[field] && <span className="text-red-700 text-xs">{errors[field]}</span>}
                 </div>
+                  {errors && errors[field] && <span className="text-red-700 text-xs">{errors[field]}</span>}
               </div>
             ))}
             <div className="flex w-full">

@@ -72,7 +72,7 @@ const ChatPage = () => {
   }
   const intervalId = setInterval(async () => {
     const res = await axios.post('https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app/refresh')
-  }, 120000);
+  }, 300000);
   
   // Stop the interval after 5 seconds
 

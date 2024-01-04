@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
  // Make sure to adjust the path based on your project structure
-import {onAuthStateChanged,fetchSignInMethodsForEmail, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider,updateProfile,setPersistence,GoogleAuthProvider ,browserSessionPersistence,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,getAuth} from "firebase/auth";
+import {onAuthStateChanged,fetchSignInMethodsForEmail, updatePassword,sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider,updateProfile,setPersistence,GoogleAuthProvider ,browserSessionPersistence,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,getAuth} from "firebase/auth";
 import {auth} from './firebase';
 import { SignOutUser, userStateListener } from "./firebase";
 import axios from "axios";
@@ -117,7 +117,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error('Email login failed:', error.message);
       if(error.message=== 'Firebase: Error (auth/invalid-login-credentials).' ||error.message=== 'Firebase: Error (auth/wrong-password).' )
-       return {account: 'Inccorect email or password'};
+       return {account: 'Inccorect password'};
       return {account: 'Account not found'}
     }
   };
@@ -144,6 +144,7 @@ export function AuthProvider({ children }) {
         } else {
           const ans = await sendPasswordResetEmail(authInstance, email);
           console.log('Email exists');
+          setMethod('password')
           return true;
         }
       }catch(error){
@@ -161,8 +162,10 @@ export function AuthProvider({ children }) {
     const  credentials = EmailAuthProvider.credential(currentUser.email, oldPassword);
     try {
       const res = await reauthenticateWithCredential(authInstance.currentUser, credentials);
-      console.log(res)
+      setMethod('password')
+      const result = await updatePassword(authInstance.currentUser,newPassword)
       return {ok:true}
+    
     } catch (error) {
       console.error('Reauthentication failed:', error.message);
       return { error: 'Reauthentication failed. Please check your old password.' };

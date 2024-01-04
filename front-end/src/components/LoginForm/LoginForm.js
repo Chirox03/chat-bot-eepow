@@ -55,7 +55,7 @@ console.log(errors)
         setErrors(response);
         return;
       }
-      toast(`Welcome back ${email} !`)
+      toast.success(`Welcome back ${email} !`)
       navigate('/Chat');
     } catch (error) {
       setPassword('');
