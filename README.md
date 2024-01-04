@@ -59,5 +59,5 @@ Welcome to the OOP Eepow Chat Bot project! This educational chat bot is designed
 - React JS
 - Node.js
 - Firebase (Firestore and Authentication)
-- Language Model API (replace_with_your_api_endpoint)
+- Language Model API 
 
