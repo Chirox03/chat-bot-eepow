@@ -23,6 +23,7 @@ const Menu = () => {
   useEffect(()=>{
    console.log(currentUser)
   },[currentUser])
+  console.log('method',method)
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -49,7 +50,7 @@ const Menu = () => {
         <div className="absolute bottom-12 left-0 border shadow-lg z-10 w-full border-green">
         { method == 'password' ?(
 
-        <a className="block px-4 py-2 text-sm text-black bg-white hover:bg-light" onClick={()=>{navigate('ChatPage')}}>
+        <a className="block px-4 py-2 text-sm text-black bg-white hover:bg-light" onClick={()=>{navigate('/ChangePass')}}>
         Đổi mật khẩu
         </a>
             ):null
