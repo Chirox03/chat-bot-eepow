@@ -1,63 +1,32 @@
-# OOP Learning Chat Bot
+# InsCook
 
-Welcome to the OOP Eepow Chat Bot project! This educational chat bot is designed to assist users in learning Object-Oriented Programming (OOP) concepts. The application features a user-friendly interface built with React JS for the front end, a Node.js backend for handling requests, Firebase for Firestore database and authentication, and a language model integrated as a web API.
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Technologies](#technologies)
-- [Contributing](#contributing)
-- [License](#license)
+InsCook is a social network tailored for cooking enthusiasts who love to share and explore new recipes. Users can discover a variety of cooking recipes, interact by commenting, liking, and saving recipes they enjoy. The platform is built with a modern tech stack, utilizing Next.js and Tailwind CSS for the frontend, and Go lang for the backend.
 
 ## Features
 
-- **Interactive Learning:** Engage in conversations with the chat bot to enhance your understanding of OOP concepts.
-- **Real-time Feedback:** Receive immediate feedback on questions related to OOP.
-- **Persistent Data:** Your learning progress and preferences are stored in Firebase Firestore for continuity across sessions.
-- **Language Model Integration:** Utilize a language model API for advanced conversational interactions. The API can be found at [API Endpoint](replace_with_your_api_endpoint).
+- **Recipe Sharing**: Share your favorite recipes with the community.
+- **Recipe Discovery**: Explore a wide range of cooking recipes shared by others.
+- **Interactivity**: Engage with the community by commenting on and liking recipes.
+- **Save Recipes**: Save recipes for later reference.
+
+## Technologies Used
+
+- **Frontend**:
+  - Next.js
+  - Tailwind CSS
+
+- **Backend**:
+  - Go lang
 
 ## Installation
 
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/Chirox03/chat-bot-eepow.git
-   cd chat-bot-eepow
-   
-2. **Install Dependencies:**
-     ```bash
-      # Install front-end dependencies 
-      cd front-end
-      npm install
-      
-      # Install back-end dependencies
-      cd ../back-end
-      npm install
-      ```
+To run the project locally, follow these steps:
 
-## Usage
+1. Clone the repository:
 
-1. **Run the front-end (React JS):**
-     ```bash
-      cd front-end
-      npm start
-     ```
-
-2. **Run the back-end (Node.js):**
-     ```bash
-      cd back-end
-      npm start
-     ```
-
-3. **Access the Language Model API:**
-   - The language model API can be accessed at [API Endpoint]([replace_with_your_api_endpoint](https://eepow-chatbot-2023-phlyzwu6ga-uc.a.run.app)).
-   - More information can be accessed at https://github.com/nganngants/eepow-chatbot-api
-
-## Technologies
-
-- React JS
-- Node.js
-- Firebase (Firestore and Authentication)
-- Language Model API 
-
+```bash
+git clone https://github.com/your-username/InsCook.git
+2. Install dependency:
+```bash
+cd front-end
+npm install
