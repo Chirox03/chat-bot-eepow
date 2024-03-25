@@ -17,6 +17,13 @@ InsCook is a social network tailored for cooking enthusiasts who love to share a
 
 - **Backend**:
   - Go lang
+## Team
+
+| Name         | Email                  |
+|--------------|------------------------|
+| Lê Hoài Thương  | 21520474@gm.uit.edu.vn      |
+| Nguyễn Hoàng Hải  |21522034@gm.uit.edu.vn      |
+| Trần Hữu Lộc | 22520796@gm.uit.edu.vn       |
 
 ## Installation
 
@@ -26,7 +33,10 @@ To run the project locally, follow these steps:
 
 ```bash
 git clone https://github.com/your-username/InsCook.git
+```
 2. Install dependency:
+
 ```bash
 cd front-end
 npm install
+```
